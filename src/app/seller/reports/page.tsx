@@ -93,7 +93,7 @@ export default function SellerReportsPage() {
             <div className="rounded-md bg-secondary p-3">
               <p className="text-xs text-muted-foreground">30-day outlook</p>
               <p className="font-semibold">
-                {trendPct >= 1 ? "Prices rising — consider holding stock" : trendPct <= -1 ? "Prices easing — sell sooner" : "Stable market"}
+                {trendPct >= 1 ? "Prices rising, consider holding stock" : trendPct <= -1 ? "Prices easing, sell sooner" : "Stable market"}
               </p>
             </div>
           </div>

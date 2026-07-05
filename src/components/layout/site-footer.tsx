@@ -43,7 +43,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t">
         <div className="container flex flex-col items-center justify-between gap-2 py-4 text-xs text-muted-foreground sm:flex-row">
-          <p>© 2026 Accreage Mart. Final Year Project — University of Moratuwa.</p>
+          <p>© 2026 Accreage Mart.</p>
           <p>English • සිංහල (soon) • தமிழ் (soon)</p>
         </div>
       </div>

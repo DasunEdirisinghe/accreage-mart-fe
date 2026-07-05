@@ -1,5 +1,5 @@
 /**
- * Admin/staff service — user management, web content, announcements
+ * Admin/staff service, user management, web content, announcements
  * (SRS 2.2, 2.3, 2.11). WIRING LATER: Frappe User + custom DocTypes.
  */
 

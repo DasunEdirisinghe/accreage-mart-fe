@@ -1,5 +1,5 @@
 /**
- * Order & payment-proof service — mock implementation (SRS 2.5).
+ * Order & payment-proof service, mock implementation (SRS 2.5).
  * WIRING LATER:
  *   POST /api/resource/Order
  *   PUT  /api/resource/Order/<id>
@@ -160,7 +160,7 @@ export function reviewPaymentProof(proofId: string, decision: "approved" | "reje
 
 export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   pending_confirmation: "Pending confirmation",
-  confirmed: "Confirmed — awaiting payment",
+  confirmed: "Confirmed, awaiting payment",
   payment_review: "Payment under review",
   paid: "Paid",
   completed: "Completed",

@@ -1,5 +1,5 @@
 /**
- * Reviews, inquiries, chat and notifications — mock implementation
+ * Reviews, inquiries, chat and notifications, mock implementation
  * (SRS 2.8, 2.9, 2.10). WIRING LATER: Frappe resources Review, Inquiry,
  * Chat Message + frappe.realtime for live chat.
  */

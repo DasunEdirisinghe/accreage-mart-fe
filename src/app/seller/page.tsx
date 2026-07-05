@@ -60,7 +60,7 @@ export default function SellerDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <BrainCircuit className="h-4 w-4 text-primary" />
-              Price forecast — {forecast.commodity}
+              Price forecast, {forecast.commodity}
             </CardTitle>
             <CardDescription>
               Facebook Prophet · 30-day forecast with 90% interval · MAPE {forecast.mape}% ·{" "}
@@ -106,7 +106,7 @@ export default function SellerDashboard() {
                     </p>
                   </div>
                   <Badge variant={ORDER_STATUS_VARIANT[o.status]} className="shrink-0">
-                    {ORDER_STATUS_LABEL[o.status].split(" — ")[0]}
+                    {ORDER_STATUS_LABEL[o.status].split(", ")[0]}
                   </Badge>
                 </Link>
               );

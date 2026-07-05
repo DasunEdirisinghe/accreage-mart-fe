@@ -30,7 +30,7 @@ export default function AuctionsPage() {
         <EmptyState
           icon={Gavel}
           title="No auctions here right now"
-          description="Check back soon — sellers schedule new auctions regularly."
+          description="Check back soon, sellers schedule new auctions regularly."
         />
       );
     }

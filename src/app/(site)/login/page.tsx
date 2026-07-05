@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
 const DEMO_ACCOUNTS = [
-  { role: "buyer" as const, icon: ShoppingBasket, label: "Buyer", desc: "Cinnamon Hotels — procurement" },
+  { role: "buyer" as const, icon: ShoppingBasket, label: "Buyer", desc: "Cinnamon Hotels, procurement" },
   { role: "seller" as const, icon: Store, label: "Seller", desc: "Nuwara Fresh Farms" },
   { role: "staff" as const, icon: ShieldCheck, label: "Staff", desc: "Listing & payment review" },
   { role: "admin" as const, icon: UserCog, label: "Admin", desc: "Full platform control" },

@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
           <CardTitle className="text-xl">{sent ? "Check your email" : "Reset password"}</CardTitle>
           <CardDescription>
             {sent
-              ? "If an account exists for that address, a reset link has been sent (demo — no email actually sent)."
+              ? "If an account exists for that address, a reset link has been sent (demo, no email actually sent)."
               : "Enter your registered email and we'll send you a reset link."}
           </CardDescription>
         </CardHeader>

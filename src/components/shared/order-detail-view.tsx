@@ -80,12 +80,12 @@ export function OrderDetailView({
   const review = (decision: "approved" | "rejected") => {
     if (!proof) return;
     reviewPaymentProof(proof.id, decision);
-    toast.success(decision === "approved" ? "Payment approved — invoice generated" : "Payment proof rejected");
+    toast.success(decision === "approved" ? "Payment approved, invoice generated" : "Payment proof rejected");
   };
 
   const sendReview = () => {
     submitReview(order.id, order.sellerId, order.buyerId, rating, comment);
-    toast.success("Review submitted", { description: "Thanks — this updates the seller's trust score." });
+    toast.success("Review submitted", { description: "Thanks, this updates the seller's trust score." });
   };
 
   return (
@@ -123,7 +123,7 @@ export function OrderDetailView({
                   {i + 1}
                 </span>
                 <span className="hidden text-[10px] text-muted-foreground sm:block">
-                  {ORDER_STATUS_LABEL[s].split(" — ")[0]}
+                  {ORDER_STATUS_LABEL[s].split(", ")[0]}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
@@ -222,7 +222,7 @@ export function OrderDetailView({
                   <div className="space-y-3 rounded-md bg-secondary/50 p-4">
                     <p className="text-sm font-medium">Upload payment proof</p>
                     <div className="space-y-2">
-                      <Label>File name (demo — no real upload)</Label>
+                      <Label>File name (demo, no real upload)</Label>
                       <Input
                         placeholder="e.g. boc-transfer-slip.jpg"
                         value={fileName}
@@ -310,7 +310,7 @@ export function OrderDetailView({
             <CardContent className="flex flex-col gap-2">
               {perspective === "seller" && order.status === "pending_confirmation" && (
                 <>
-                  <Button onClick={() => { setOrderStatus(order.id, "confirmed"); toast.success("Order confirmed — buyer notified to make payment"); }}>
+                  <Button onClick={() => { setOrderStatus(order.id, "confirmed"); toast.success("Order confirmed, buyer notified to make payment"); }}>
                     Confirm order
                   </Button>
                   <Button variant="destructive" onClick={() => { setOrderStatus(order.id, "cancelled"); toast.info("Order cancelled"); }}>

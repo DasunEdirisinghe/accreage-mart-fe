@@ -20,7 +20,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { getListingDetails } from "@/lib/services/listings";
 import { placeOrder } from "@/lib/services/orders";
 import { getOrCreateThread } from "@/lib/services/engagement";
-import { cn, formatLKR, formatDate } from "@/lib/utils";
+import { formatLKR, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +37,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { RatingStars } from "@/components/shared/rating-stars";
+import { ListingGallery } from "@/components/shared/listing-gallery";
 
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -99,14 +100,10 @@ export default function ListingDetailPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
         {/* main */}
         <div className="space-y-6">
-          <div
-            className={cn(
-              "flex h-64 items-center justify-center rounded-xl bg-gradient-to-br text-8xl sm:h-80",
-              listing.imageGradient
-            )}
-          >
-            {listing.image}
-          </div>
+          <ListingGallery
+            emoji={listing.image}
+            gradients={listing.gallery ?? [listing.imageGradient]}
+          />
 
           <div>
             <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -212,7 +209,7 @@ export default function ListingDetailPage() {
                         <DialogHeader>
                           <DialogTitle>Place wholesale order</DialogTitle>
                           <DialogDescription>
-                            {listing.title} — minimum {listing.minOrderQty} {listing.unit}.
+                            {listing.title}, minimum {listing.minOrderQty} {listing.unit}.
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-3">
@@ -277,10 +274,13 @@ export default function ListingDetailPage() {
               <CardTitle className="text-base">Seller</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="flex items-center gap-1.5 font-semibold">
+              <Link
+                href={`/sellers/${seller.id}`}
+                className="flex items-center gap-1.5 font-semibold hover:underline"
+              >
                 {seller.verified && <ShieldCheck className="h-4 w-4 text-primary" />}
                 {seller.businessName}
-              </p>
+              </Link>
               <div className="flex items-center gap-2 text-sm">
                 <RatingStars rating={seller.trustScore} />
                 <span className="font-medium">{seller.trustScore.toFixed(1)}</span>
@@ -290,6 +290,9 @@ export default function ListingDetailPage() {
               <p className="text-xs text-muted-foreground">
                 {seller.totalSales} completed sales · {seller.location}
               </p>
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <Link href={`/sellers/${seller.id}`}>View seller profile</Link>
+              </Button>
             </CardContent>
           </Card>
         </div>

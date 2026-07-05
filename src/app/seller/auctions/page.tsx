@@ -81,7 +81,7 @@ export default function SellerAuctionsPage() {
                       </TableCell>
                       <TableCell>{formatLKR(a.minBid)}/{listing.unit}</TableCell>
                       <TableCell className="font-medium">
-                        {highest ? `${formatLKR(highest.amount)}/${listing.unit}` : "—"}
+                        {highest ? `${formatLKR(highest.amount)}/${listing.unit}` : "-"}
                       </TableCell>
                       <TableCell>{bids.length}</TableCell>
                       <TableCell>

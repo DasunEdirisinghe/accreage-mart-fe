@@ -1,5 +1,5 @@
 /**
- * Auction service — mock implementation.
+ * Auction service, mock implementation.
  * WIRING LATER: Frappe endpoints + WebSocket for live bids, e.g.
  *   POST /api/method/accreage.api.place_bid
  *   frappe.realtime (socket.io) channel: auction_<id>
@@ -88,7 +88,7 @@ export function placeBid(
   return result;
 }
 
-/** Staff action — approve or reject a pending auction (REQ 2.4-3). */
+/** Staff action, approve or reject a pending auction (REQ 2.4-3). */
 export function reviewAuction(auctionId: string, decision: "scheduled" | "rejected"): void {
   mutate((db) => {
     const a = db.auctions.find((x) => x.id === auctionId);

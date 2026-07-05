@@ -77,7 +77,7 @@ export default function SellerListingsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {l.sellingType === "direct" ? `${formatLKR(l.pricePerUnit)}/${l.unit}` : "—"}
+                      {l.sellingType === "direct" ? `${formatLKR(l.pricePerUnit)}/${l.unit}` : "-"}
                     </TableCell>
                     <TableCell>
                       {l.quantityAvailable.toLocaleString()} {l.unit}

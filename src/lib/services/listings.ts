@@ -1,5 +1,5 @@
 /**
- * Listing service — mock implementation.
+ * Listing service, mock implementation.
  * WIRING LATER: replace each function body with a Frappe REST call, e.g.
  *   GET  /api/resource/Listing?filters=[["status","=","approved"]]
  *   POST /api/resource/Listing
@@ -120,7 +120,7 @@ export function deleteListing(listingId: string): void {
   });
 }
 
-/** Staff action — REQ 2.1/REQ-5. */
+/** Staff action, REQ 2.1/REQ-5. */
 export function reviewListing(
   listingId: string,
   decision: "approved" | "rejected",

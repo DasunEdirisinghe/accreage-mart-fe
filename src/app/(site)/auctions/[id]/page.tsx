@@ -121,7 +121,7 @@ export default function AuctionDetailPage() {
             <CardContent>
               {bids.length === 0 ? (
                 <p className="py-4 text-center text-sm text-muted-foreground">
-                  No bids yet — be the first.
+                  No bids yet, be the first.
                 </p>
               ) : (
                 <Table>
@@ -234,7 +234,7 @@ export default function AuctionDetailPage() {
                   {myHighest && (
                     <p className="text-center text-xs text-muted-foreground">
                       Your best bid: {formatLKR(myHighest.amount)}/{listing.unit}
-                      {highestBid?.buyerId === buyerProfile?.id && " — you're leading!"}
+                      {highestBid?.buyerId === buyerProfile?.id && ", you're leading!"}
                     </p>
                   )}
                 </div>

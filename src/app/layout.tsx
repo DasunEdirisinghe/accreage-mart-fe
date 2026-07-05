@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: {
-    default: "Accreage Mart — AI-Powered Agricultural B2B Marketplace",
+    default: "Accreage Mart, AI-Powered Agricultural B2B Marketplace",
     template: "%s | Accreage Mart",
   },
   description:

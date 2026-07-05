@@ -35,7 +35,7 @@ export default function ListingApprovalsPage() {
   const reject = () => {
     if (!rejectId) return;
     reviewListing(rejectId, "rejected", feedback || "Does not meet marketplace guidelines.");
-    toast.info("Listing rejected — seller notified with feedback");
+    toast.info("Listing rejected, seller notified with feedback");
     setRejectId(null);
     setFeedback("");
   };

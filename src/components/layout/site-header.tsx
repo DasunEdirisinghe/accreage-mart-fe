@@ -10,7 +10,7 @@ import { useDB } from "@/hooks/use-db";
 import { markNotificationsRead } from "@/lib/services/engagement";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -136,6 +136,10 @@ export function SiteHeader() {
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 rounded-full outline-none ring-ring focus-visible:ring-2">
                     <Avatar>
+                      <AvatarImage
+                        src={`https://api.dicebear.com/10.x/initials/svg?seed=${encodeURIComponent(user.name)}`}
+                        alt={user.name}
+                      />
                       <AvatarFallback className={cn(user.avatarColor, "text-white")}>
                         {initials(user.name)}
                       </AvatarFallback>

@@ -102,13 +102,13 @@ export default function NewListingPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Create listing</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          All listings are reviewed by staff before publication (SRS 2.1 — Pending Approval workflow).
+          All listings are reviewed by staff before publication (SRS 2.1, Pending Approval workflow).
         </p>
       </div>
 
       <form onSubmit={submit} className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
-          {/* selling type — mandatory (REQ 2.1-2) */}
+          {/* selling type, mandatory (REQ 2.1-2) */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Selling type *</CardTitle>
@@ -146,7 +146,7 @@ export default function NewListingPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Title *</Label>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Fresh Carrots — Grade A (Upcountry)" required />
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Fresh Carrots, Grade A (Upcountry)" required />
               </div>
               <div className="space-y-2">
                 <Label>Description *</Label>

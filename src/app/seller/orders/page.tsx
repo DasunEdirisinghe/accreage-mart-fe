@@ -62,7 +62,7 @@ export default function SellerOrdersPage() {
                       <TableCell className="font-medium">{formatLKR(o.totalPrice)}</TableCell>
                       <TableCell>
                         <Badge variant={ORDER_STATUS_VARIANT[o.status]}>
-                          {ORDER_STATUS_LABEL[o.status].split(" — ")[0]}
+                          {ORDER_STATUS_LABEL[o.status].split(", ")[0]}
                         </Badge>
                       </TableCell>
                       <TableCell className="pr-4 text-right text-muted-foreground">

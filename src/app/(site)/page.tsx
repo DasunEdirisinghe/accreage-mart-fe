@@ -40,7 +40,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden border-b">
         {/* background image */}
         <Image
-          src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1920&q=80"
+          src="https://plus.unsplash.com/premium_photo-1663945779273-ebc45569fb9f?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt=""
           fill
           priority
@@ -61,7 +61,7 @@ export default function LandingPage() {
             </h1>
             <p className="max-w-xl text-lg text-muted-foreground">
               Accreage Mart connects farmers and wholesale sellers directly with hotels,
-              supermarkets, exporters and processors — with competitive auctions, AI price
+              supermarkets, exporters and processors, with competitive auctions, AI price
               suggestions and trusted, verified trade.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -210,7 +210,7 @@ export default function LandingPage() {
               <Badge className="border-0 bg-white/20 text-white hover:bg-white/25">For buyers</Badge>
               <h3 className="text-2xl font-bold">Source produce at wholesale</h3>
               <p className="max-w-sm text-white/90">
-                Hotels, supermarkets and exporters — browse verified listings, compare prices and
+                Hotels, supermarkets and exporters, browse verified listings, compare prices and
                 order directly from farms across Sri Lanka.
               </p>
               <Button size="lg" variant="secondary" className="mt-2 text-orange-700" asChild>
@@ -257,7 +257,7 @@ export default function LandingPage() {
               {
                 icon: BrainCircuit,
                 title: "2. Price with AI confidence",
-                text: "Prophet-based forecasts suggest fair price ranges from historical market data — sellers stay in control of the final price.",
+                text: "Prophet-based forecasts suggest fair price ranges from historical market data. Sellers stay in control of the final price.",
               },
               {
                 icon: Sprout,
@@ -332,7 +332,7 @@ export default function LandingPage() {
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-primary-foreground/85">
             Our Facebook Prophet model forecasts wholesale prices with a mean absolute percentage
-            error of just 4.74% — so sellers can plan production and pricing with confidence, and
+            error of just 4.74%, so sellers can plan production and pricing with confidence, and
             buyers can time purchases smartly.
           </p>
           <Button size="lg" variant="secondary" className="mt-8" asChild>
@@ -391,13 +391,23 @@ export default function LandingPage() {
 
       {/* join now banner */}
       <section className="container pb-16">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-emerald-600 to-teal-500 px-6 py-12 text-center text-white shadow-lg md:px-12 md:py-16">
-          <div className="mx-auto max-w-2xl space-y-4">
+        <div className="relative overflow-hidden rounded-2xl bg-primary px-6 py-12 text-center text-white shadow-lg md:px-12 md:py-16">
+          {/* background image */}
+          <Image
+            src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1920&q=80"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+          {/* readability overlay */}
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative mx-auto max-w-2xl space-y-4">
             <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
               Ready to trade smarter?
             </h2>
             <p className="text-white/90">
-              Join Accreage Mart today — free to sign up. Verified sellers, live auctions and
+              Join Accreage Mart today, free to sign up. Verified sellers, live auctions and
               AI-backed pricing, all in one place.
             </p>
             <div className="flex flex-wrap justify-center gap-3 pt-2">
@@ -475,7 +485,7 @@ const WHY_US = [
   {
     icon: BrainCircuit,
     title: "AI-backed fair pricing",
-    text: "Prophet forecasts suggest fair price ranges from real market data — you stay in control.",
+    text: "Prophet forecasts suggest fair price ranges from real market data. You stay in control.",
     tint: "bg-emerald-100 text-emerald-700",
   },
   {
@@ -493,13 +503,13 @@ const WHY_US = [
   {
     icon: Handshake,
     title: "Direct farm-to-buyer",
-    text: "Cut out middlemen — sellers earn more, buyers source fresher, everyone wins.",
+    text: "Cut out middlemen, sellers earn more, buyers source fresher, everyone wins.",
     tint: "bg-rose-100 text-rose-700",
   },
   {
     icon: Truck,
     title: "Optional logistics",
-    text: "Add delivery to any order when you need it, or arrange your own pickup — your call.",
+    text: "Add delivery to any order when you need it, or arrange your own pickup. Your call.",
     tint: "bg-violet-100 text-violet-700",
   },
   {
@@ -517,7 +527,7 @@ const WHY_US = [
   {
     icon: Tag,
     title: "Free to get started",
-    text: "No signup or listing fees — create an account and start trading in minutes.",
+    text: "No signup or listing fees. Create an account and start trading in minutes.",
     tint: "bg-lime-100 text-lime-700",
   },
 ];
@@ -557,7 +567,7 @@ const FAQS = [
   },
   {
     q: "How do payments work?",
-    a: "In the current phase, buyers pay sellers directly and upload a payment proof for the order. There's no card gateway yet — this keeps things simple and transparent while trust is established.",
+    a: "In the current phase, buyers pay sellers directly and upload a payment proof for the order. There's no card gateway yet. This keeps things simple and transparent while trust is established.",
   },
   {
     q: "What's the difference between direct listings and auctions?",

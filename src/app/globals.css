@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* 60% — warm neutral surfaces */
+    /* 60%, warm neutral surfaces */
     --background: 40 33% 98%;
     --foreground: 150 12% 12%;
     --card: 0 0% 100%;
@@ -12,13 +12,13 @@
     --popover: 0 0% 100%;
     --popover-foreground: 150 12% 12%;
 
-    /* 30% — agri green brand */
+    /* 30%, agri green brand */
     --primary: 146 55% 24%;
     --primary-foreground: 40 33% 98%;
     --secondary: 146 25% 93%;
     --secondary-foreground: 146 55% 18%;
 
-    /* 10% — harvest amber accent */
+    /* 10%, harvest amber accent */
     --accent: 38 92% 50%;
     --accent-foreground: 30 60% 12%;
 

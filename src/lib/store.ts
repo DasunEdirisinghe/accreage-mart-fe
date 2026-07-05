@@ -6,7 +6,7 @@
  * Mutations here make the prototype feel real: placing an order, bidding,
  * approving a listing etc. all update state that is reflected across pages.
  *
- * State resets on a full page reload (by design — no persistence layer yet).
+ * State resets on a full page reload (by design, no persistence layer yet).
  */
 
 import {

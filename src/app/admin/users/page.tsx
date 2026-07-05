@@ -66,7 +66,7 @@ export default function UserManagementPage() {
                     </TableCell>
                     <TableCell className="max-w-40">
                       <span className="block truncate text-sm">
-                        {sp?.businessName ?? bp?.businessName ?? "—"}
+                        {sp?.businessName ?? bp?.businessName ?? "-"}
                       </span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{formatDate(u.createdAt)}</TableCell>

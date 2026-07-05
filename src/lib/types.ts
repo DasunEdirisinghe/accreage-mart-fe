@@ -1,6 +1,6 @@
 /**
  * Domain types mirroring the Accreage Mart ERD (SRS v1.0, Appendix B).
- * These shapes are what the Frappe backend will eventually return —
+ * These shapes are what the Frappe backend will eventually return -
  * keep them stable so wiring the API later is a drop-in change.
  */
 
@@ -70,7 +70,8 @@ export interface Listing {
   status: ListingStatus;
   rejectionReason?: string;
   image: string; // emoji for mock UI
-  imageGradient: string; // tailwind gradient classes
+  imageGradient: string; // tailwind gradient classes (primary placeholder)
+  gallery?: string[]; // extra gradient placeholders → multi-image carousel
   createdAt: string;
 }
 

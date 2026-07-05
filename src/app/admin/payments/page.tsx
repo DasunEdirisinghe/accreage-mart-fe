@@ -47,10 +47,10 @@ export default function PaymentReviewPage() {
           </div>
           {actions ? (
             <div className="flex shrink-0 gap-2">
-              <Button size="sm" onClick={() => { reviewPaymentProof(p.id, "approved"); toast.success("Payment approved — order marked paid"); }}>
+              <Button size="sm" onClick={() => { reviewPaymentProof(p.id, "approved"); toast.success("Payment approved, order marked paid"); }}>
                 <CheckCircle2 className="h-4 w-4" /> Approve
               </Button>
-              <Button size="sm" variant="destructive" onClick={() => { reviewPaymentProof(p.id, "rejected"); toast.info("Proof rejected — buyer asked to re-upload"); }}>
+              <Button size="sm" variant="destructive" onClick={() => { reviewPaymentProof(p.id, "rejected"); toast.info("Proof rejected, buyer asked to re-upload"); }}>
                 <XCircle className="h-4 w-4" /> Reject
               </Button>
             </div>
@@ -68,7 +68,7 @@ export default function PaymentReviewPage() {
     <>
       <PageHeader
         title="Payment proof review"
-        description="Manual payment verification for phase 1 — approve valid bank slips to release orders (SRS 2.5 REQ-6)."
+        description="Manual payment verification for phase 1, approve valid bank slips to release orders (SRS 2.5 REQ-6)."
       />
       <Tabs defaultValue="queue">
         <TabsList>
