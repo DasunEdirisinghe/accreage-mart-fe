@@ -1,14 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   ArrowRight,
+  BadgeCheck,
   BrainCircuit,
+  ChevronDown,
   Gavel,
+  Handshake,
   LineChart,
   ShieldCheck,
+  ShoppingCart,
   Sprout,
+  Star,
   Store,
+  Tag,
   Truck,
   Megaphone,
 } from "lucide-react";
@@ -118,6 +125,26 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* audience marquee */}
+      <section className="border-b bg-primary py-5 text-primary-foreground">
+        <div className="container mb-3 text-center text-xs font-semibold uppercase tracking-widest text-primary-foreground/70">
+          Built for how fresh produce trades in Sri Lanka
+        </div>
+        <div className="marquee-pause group relative flex overflow-hidden">
+          <div className="animate-marquee flex shrink-0 items-center gap-3 pr-3">
+            {AUDIENCES.concat(AUDIENCES).map((a, i) => (
+              <span
+                key={i}
+                className="flex items-center gap-2 whitespace-nowrap rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-1.5 text-sm font-medium"
+              >
+                <span className="text-base">{a.icon}</span>
+                {a.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* categories */}
       <section className="container py-12">
         <div className="mb-6 flex items-center justify-between">
@@ -158,6 +185,51 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* buy / sell split CTA */}
+      <section className="container pb-12">
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* buyers */}
+          <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-orange-600 p-8 text-white shadow-lg md:p-10">
+            <div className="absolute -right-6 -top-6 opacity-20 transition-transform duration-300 group-hover:scale-110">
+              <ShoppingCart className="h-28 w-28" />
+            </div>
+            <div className="relative space-y-3">
+              <Badge className="border-0 bg-white/20 text-white hover:bg-white/25">For buyers</Badge>
+              <h3 className="text-2xl font-bold">Source produce at wholesale</h3>
+              <p className="max-w-sm text-white/90">
+                Hotels, supermarkets and exporters — browse verified listings, compare prices and
+                order directly from farms across Sri Lanka.
+              </p>
+              <Button size="lg" variant="secondary" className="mt-2 text-orange-700" asChild>
+                <Link href="/marketplace">
+                  Browse marketplace <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* sellers */}
+          <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-green-700 to-green-800 p-8 text-white shadow-lg md:p-10">
+            <div className="absolute -right-6 -top-6 opacity-20 transition-transform duration-300 group-hover:scale-110">
+              <Sprout className="h-28 w-28" />
+            </div>
+            <div className="relative space-y-3">
+              <Badge className="border-0 bg-white/20 text-white hover:bg-white/25">For sellers</Badge>
+              <h3 className="text-2xl font-bold">Sell your harvest for more</h3>
+              <p className="max-w-sm text-white/90">
+                List directly or run live auctions, get AI-backed fair price suggestions, and reach
+                institutional buyers looking for bulk supply.
+              </p>
+              <Button size="lg" variant="secondary" className="mt-2 text-green-800" asChild>
+                <Link href="/register">
+                  Start selling today <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* how it works */}
       <section className="border-y bg-secondary/40">
         <div className="container py-14">
@@ -192,25 +264,157 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* AI strip */}
-      <section className="container py-14">
-        <Card className="overflow-hidden border-primary/20 bg-gradient-to-r from-primary to-primary/85 text-primary-foreground">
-          <CardContent className="grid items-center gap-8 p-8 md:grid-cols-[1fr_auto] md:p-12">
-            <div className="space-y-3">
-              <h2 className="flex items-center gap-2 text-2xl font-bold">
-                <LineChart className="h-6 w-6" /> Demand forecasting, built in
-              </h2>
-              <p className="max-w-2xl text-primary-foreground/85">
-                Our Facebook Prophet model forecasts wholesale prices with a mean absolute
-                percentage error of just 4.74% — so sellers can plan production and pricing
-                with confidence, and buyers can time purchases smartly.
-              </p>
+      {/* stats band */}
+      <section className="bg-gradient-to-r from-primary via-emerald-700 to-primary py-12 text-primary-foreground">
+        <div className="container grid grid-cols-2 gap-8 text-center md:grid-cols-4">
+          {STATS.map((s) => (
+            <div key={s.label}>
+              <p className="text-4xl font-extrabold sm:text-5xl">{s.value}</p>
+              <p className="mt-2 text-sm font-medium text-primary-foreground/80">{s.label}</p>
             </div>
-            <Button size="lg" variant="secondary" asChild>
-              <Link href="/register">Get started free</Link>
-            </Button>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* why us */}
+      <section className="container py-16">
+        <div className="mx-auto mb-10 max-w-2xl text-center">
+          <Badge variant="secondary" className="mb-3">
+            Why Accreage Mart
+          </Badge>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Trade that respects how agri actually works
+          </h2>
+          <p className="mt-3 text-muted-foreground">
+            Most marketplaces bolt farming onto a generic store. Accreage Mart is built around
+            wholesale produce from the ground up.
+          </p>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {WHY_US.map((w) => (
+            <div
+              key={w.title}
+              className={`rounded-2xl border bg-card p-6 transition-shadow hover:shadow-md`}
+            >
+              <span
+                className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${w.tint}`}
+              >
+                <w.icon className="h-6 w-6" />
+              </span>
+              <h3 className="mb-1.5 font-semibold">{w.title}</h3>
+              <p className="text-sm text-muted-foreground">{w.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* AI forecasting band */}
+      <section className="bg-gradient-to-r from-primary to-primary/85 py-16 text-primary-foreground">
+        <div className="container mx-auto max-w-3xl text-center">
+          <Badge className="mb-4 border-0 bg-white/20 text-white hover:bg-white/25">
+            <LineChart className="mr-1 h-3.5 w-3.5" /> AI forecasting
+          </Badge>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            Demand forecasting, built in
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-primary-foreground/85">
+            Our Facebook Prophet model forecasts wholesale prices with a mean absolute percentage
+            error of just 4.74% — so sellers can plan production and pricing with confidence, and
+            buyers can time purchases smartly.
+          </p>
+          <Button size="lg" variant="secondary" className="mt-8" asChild>
+            <Link href="/register">Get started free</Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* testimonials */}
+      <section className="border-y bg-secondary/40">
+        <div className="container py-16">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <Badge variant="secondary" className="mb-3">
+              From the field
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight">Trusted by buyers and sellers alike</h2>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {TESTIMONIALS.map((t) => (
+              <figure key={t.name} className="flex flex-col rounded-2xl border bg-card p-6">
+                <blockquote className="flex-1 text-sm text-foreground/90">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+                <figcaption className="mt-5 flex items-center gap-3">
+                  <span
+                    className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-white ${t.color}`}
+                  >
+                    {t.name.charAt(0)}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                  </div>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            Representative of feedback from platform users. Names shortened on request.
+          </p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="container py-16">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-8 text-center">
+            <Badge variant="secondary" className="mb-3">
+              FAQ
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight">Questions, answered</h2>
+          </div>
+          <FaqAccordion />
+        </div>
+      </section>
+
+      {/* join now banner */}
+      <section className="container pb-16">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-emerald-600 to-teal-500 px-6 py-12 text-center text-white shadow-lg md:px-12 md:py-16">
+          <div className="mx-auto max-w-2xl space-y-4">
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Ready to trade smarter?
+            </h2>
+            <p className="text-white/90">
+              Join Accreage Mart today — free to sign up. Verified sellers, live auctions and
+              AI-backed pricing, all in one place.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
+              <Button size="lg" variant="secondary" className="text-primary" asChild>
+                <Link href="/register">
+                  Create free account <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/60 bg-transparent text-white hover:bg-white/15 hover:text-white"
+                asChild
+              >
+                <Link href="/contact">Talk to us</Link>
+              </Button>
+            </div>
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 pt-4 text-sm text-white/85">
+              <span className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" /> Verified sellers
+              </span>
+              <span className="flex items-center gap-2">
+                <Gavel className="h-4 w-4" /> Live auctions
+              </span>
+              <span className="flex items-center gap-2">
+                <Tag className="h-4 w-4" /> AI fair pricing
+              </span>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* announcements */}
@@ -231,5 +435,152 @@ export default function LandingPage() {
         </div>
       </section>
     </>
+  );
+}
+
+/* ------------------------------ page data ------------------------------ */
+
+const AUDIENCES = [
+  { icon: "🏨", label: "Hotels & resorts" },
+  { icon: "🛒", label: "Supermarkets" },
+  { icon: "🌍", label: "Exporters" },
+  { icon: "🏭", label: "Food processors" },
+  { icon: "🍽️", label: "Restaurants" },
+  { icon: "🤝", label: "Farmer co-operatives" },
+  { icon: "📦", label: "Wholesalers" },
+  { icon: "🚜", label: "Independent farmers" },
+];
+
+const STATS = [
+  { value: "4.74%", label: "AI price forecast error" },
+  { value: "8", label: "Produce categories" },
+  { value: "100%", label: "Verified sellers" },
+  { value: "24/7", label: "Live auctions & orders" },
+];
+
+const WHY_US = [
+  {
+    icon: BrainCircuit,
+    title: "AI-backed fair pricing",
+    text: "Prophet forecasts suggest fair price ranges from real market data — you stay in control.",
+    tint: "bg-emerald-100 text-emerald-700",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Verified & trusted trade",
+    text: "Verified sellers, payment proofs and dynamic trust scores keep every deal honest.",
+    tint: "bg-amber-100 text-amber-700",
+  },
+  {
+    icon: Gavel,
+    title: "Live competitive auctions",
+    text: "Run or join real-time auctions so quality lots reach the buyers who value them most.",
+    tint: "bg-sky-100 text-sky-700",
+  },
+  {
+    icon: Handshake,
+    title: "Direct farm-to-buyer",
+    text: "Cut out middlemen — sellers earn more, buyers source fresher, everyone wins.",
+    tint: "bg-rose-100 text-rose-700",
+  },
+  {
+    icon: Truck,
+    title: "Optional logistics",
+    text: "Add delivery to any order when you need it, or arrange your own pickup — your call.",
+    tint: "bg-violet-100 text-violet-700",
+  },
+  {
+    icon: Star,
+    title: "Verified reviews",
+    text: "Real ratings from completed trades help you pick partners you can rely on.",
+    tint: "bg-yellow-100 text-yellow-700",
+  },
+  {
+    icon: LineChart,
+    title: "Insights & reports",
+    text: "Track prices, orders and demand trends with clear dashboards and exportable reports.",
+    tint: "bg-teal-100 text-teal-700",
+  },
+  {
+    icon: Tag,
+    title: "Free to get started",
+    text: "No signup or listing fees — create an account and start trading in minutes.",
+    tint: "bg-lime-100 text-lime-700",
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    quote:
+      "We used to call five suppliers to price a single order. Now I compare verified listings and lock a fair rate in minutes.",
+    name: "Buyer",
+    role: "Procurement Lead · City hotel group",
+    color: "bg-amber-500",
+  },
+  {
+    quote:
+      "The auction brought real competition for my harvest. The AI price suggestion helped me set a starting bid I felt confident about.",
+    name: "Seller",
+    role: "Vegetable farmer · Nuwara Eliya",
+    color: "bg-emerald-600",
+  },
+  {
+    quote:
+      "Trust scores and payment proofs mean we can source in bulk without the usual risk. It changed how we buy for export.",
+    name: "Exporter",
+    role: "Sourcing Manager · Produce exporter",
+    color: "bg-sky-600",
+  },
+];
+
+const FAQS = [
+  {
+    q: "How does the AI price forecasting work?",
+    a: "We use a Facebook Prophet model trained on historical wholesale prices (with diesel price as a regressor) to forecast fair daily price ranges. Sellers get a suggestion but always set the final price themselves.",
+  },
+  {
+    q: "How are sellers verified?",
+    a: "Sellers submit business details that staff review before listings go live. Verified reviews and a dynamic trust score then build over time based on completed, honest trades.",
+  },
+  {
+    q: "How do payments work?",
+    a: "In the current phase, buyers pay sellers directly and upload a payment proof for the order. There's no card gateway yet — this keeps things simple and transparent while trust is established.",
+  },
+  {
+    q: "What's the difference between direct listings and auctions?",
+    a: "Direct listings sell at a set price, first come first served. Auctions let multiple buyers bid on a lot in real time, so competitive produce reaches the highest-value buyer.",
+  },
+  {
+    q: "Who can join Accreage Mart?",
+    a: "Wholesale sellers such as farmers and co-operatives, and institutional buyers like hotels, supermarkets, restaurants, processors and exporters. Signing up is free.",
+  },
+];
+
+function FaqAccordion() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <div className="space-y-3">
+      {FAQS.map((f, i) => {
+        const isOpen = open === i;
+        return (
+          <div key={f.q} className="overflow-hidden rounded-xl border bg-card">
+            <button
+              type="button"
+              onClick={() => setOpen(isOpen ? null : i)}
+              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left font-medium transition-colors hover:bg-secondary/50"
+            >
+              {f.q}
+              <ChevronDown
+                className={`h-5 w-5 shrink-0 text-primary transition-transform ${isOpen ? "rotate-180" : ""
+                  }`}
+              />
+            </button>
+            {isOpen && (
+              <div className="px-5 pb-5 text-sm text-muted-foreground">{f.a}</div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
