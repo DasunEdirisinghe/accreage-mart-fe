@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import {
   ArrowRight,
@@ -36,8 +37,20 @@ export default function LandingPage() {
   return (
     <>
       {/* hero */}
-      <section className="border-b bg-gradient-to-b from-secondary/70 to-background">
-        <div className="container grid items-center gap-10 py-16 lg:grid-cols-2 lg:py-24">
+      <section className="relative overflow-hidden border-b">
+        {/* background image */}
+        <Image
+          src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1920&q=80"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        {/* readability overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-secondary/95 via-background/5 to-background/50" />
+        <div className="absolute inset-0 bg-gradient-to-t opacity-80 from-background to-transparent" />
+        <div className="container relative grid items-center gap-10 py-16 lg:grid-cols-2 lg:py-24">
           <div className="space-y-6">
             <Badge variant="secondary" className="gap-1.5">
               <BrainCircuit className="h-3.5 w-3.5" /> AI-powered price forecasting
