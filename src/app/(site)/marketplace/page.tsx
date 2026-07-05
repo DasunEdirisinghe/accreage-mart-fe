@@ -68,7 +68,7 @@ function MarketplaceContent() {
         description="Browse approved wholesale listings from verified agricultural sellers across Sri Lanka."
       />
 
-      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
         {/* filters */}
         <Card className="h-fit lg:sticky lg:top-20">
           <CardContent className="space-y-5 p-5">

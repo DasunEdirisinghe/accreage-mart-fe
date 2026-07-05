@@ -107,6 +107,25 @@ export function ChatView({
       {/* messages */}
       {active ? (
         <div className="flex min-w-0 flex-col">
+          {/* mobile conversation switcher (thread list is hidden below md) */}
+          {threads.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto border-b p-2 md:hidden">
+              {threads.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveId(t.id)}
+                  className={cn(
+                    "shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                    active?.id === t.id
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "hover:bg-secondary"
+                  )}
+                >
+                  {counterpartName(t)}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="border-b p-3">
             <p className="text-sm font-semibold">{counterpartName(active)}</p>
             {active.listingId && (

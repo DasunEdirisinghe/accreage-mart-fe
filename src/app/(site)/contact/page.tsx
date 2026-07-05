@@ -26,7 +26,7 @@ export default function ContactPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-[1fr_300px]">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_300px]">
         <Card>
           <CardHeader>
             <CardTitle>Send an inquiry</CardTitle>

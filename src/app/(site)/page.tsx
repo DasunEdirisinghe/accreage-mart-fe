@@ -50,7 +50,7 @@ export default function LandingPage() {
         {/* readability overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-secondary/95 via-background/5 to-background/50" />
         <div className="absolute inset-0 bg-gradient-to-t opacity-80 from-background to-transparent" />
-        <div className="container relative grid items-center gap-10 py-16 lg:grid-cols-2 lg:py-24">
+        <div className="container relative grid grid-cols-1 items-center gap-10 py-16 lg:grid-cols-2 lg:py-24">
           <div className="space-y-6">
             <Badge variant="secondary" className="gap-1.5">
               <BrainCircuit className="h-3.5 w-3.5" /> AI-powered price forecasting
@@ -187,7 +187,7 @@ export default function LandingPage() {
             </Link>
           </Button>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((l) => (
             <ListingCard
               key={l.id}
@@ -200,7 +200,7 @@ export default function LandingPage() {
 
       {/* buy / sell split CTA */}
       <section className="container pb-12">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* buyers */}
           <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-orange-600 p-8 text-white shadow-lg md:p-10">
             <div className="absolute -right-6 -top-6 opacity-20 transition-transform duration-300 group-hover:scale-110">
@@ -247,7 +247,7 @@ export default function LandingPage() {
       <section className="border-y bg-secondary/40">
         <div className="container py-14">
           <h2 className="mb-10 text-center text-2xl font-bold">How Accreage Mart works</h2>
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {[
               {
                 icon: Store,
@@ -303,7 +303,7 @@ export default function LandingPage() {
             wholesale produce from the ground up.
           </p>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {WHY_US.map((w) => (
             <div
               key={w.title}
@@ -350,7 +350,7 @@ export default function LandingPage() {
             </Badge>
             <h2 className="text-3xl font-bold tracking-tight">Trusted by buyers and sellers alike</h2>
           </div>
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {TESTIMONIALS.map((t) => (
               <figure key={t.name} className="flex flex-col rounded-2xl border bg-card p-6">
                 <blockquote className="flex-1 text-sm text-foreground/90">
@@ -435,7 +435,7 @@ export default function LandingPage() {
         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
           <Megaphone className="h-5 w-5 text-primary" /> Platform announcements
         </h2>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {db.announcements.map((a) => (
             <Card key={a.id}>
               <CardHeader className="pb-2">

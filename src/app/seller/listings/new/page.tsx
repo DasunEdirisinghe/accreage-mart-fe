@@ -106,7 +106,7 @@ export default function NewListingPage() {
         </p>
       </div>
 
-      <form onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_340px]">
+      <form onSubmit={submit} className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
           {/* selling type — mandatory (REQ 2.1-2) */}
           <Card>
