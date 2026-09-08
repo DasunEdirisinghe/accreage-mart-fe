@@ -22,6 +22,8 @@ export interface SessionUser {
   fullName: string;
   /** Primary role for routing, derived server-side. Null = no persona role. */
   role: PrimaryRole | null;
+  /** A seller whose profile isn't staff-verified yet — gated to /seller/pending. */
+  sellerPending?: boolean;
 }
 
 export interface SessionData {

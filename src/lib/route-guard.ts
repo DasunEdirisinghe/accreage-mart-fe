@@ -9,6 +9,8 @@ import type { PrimaryRole } from "@/lib/session";
 export interface GuardSession {
   isLoggedIn: boolean;
   role: PrimaryRole | null;
+  /** Seller whose profile isn't verified yet — gated to /seller/pending. */
+  sellerPending?: boolean;
 }
 
 export type GuardResult = { type: "allow" } | { type: "redirect"; to: string };
@@ -23,6 +25,16 @@ const PROTECTED_AREAS: ProtectedArea[] = [
   { prefix: "/seller", roles: ["seller"] },
   { prefix: "/admin", roles: ["staff", "admin"] },
 ];
+
+/** Within /admin, these are for admins only — not staff. */
+const ADMIN_ONLY = ["/admin/staff", "/admin/users"];
+
+/** A seller stuck at the pending gate may still reach these. */
+const SELLER_PENDING_ALLOWED = ["/seller/pending", "/seller/profile"];
+
+function underAny(pathname: string, prefixes: string[]): boolean {
+  return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
 
 const PUBLIC_EXACT = new Set([
   "/",
@@ -68,6 +80,20 @@ export function resolveRoute(session: GuardSession, pathname: string): GuardResu
   if (!session.role || !area.roles.includes(session.role)) {
     // Signed in but wrong area — send them to their own home ("/" if role-less).
     return { type: "redirect", to: roleHome(session.role) };
+  }
+
+  // Staff may enter /admin but not the admin-only pages.
+  if (area.prefix === "/admin" && session.role === "staff" && underAny(pathname, ADMIN_ONLY)) {
+    return { type: "redirect", to: "/admin" };
+  }
+
+  // An unverified seller is held at /seller/pending (profile stays reachable).
+  if (
+    area.prefix === "/seller" &&
+    session.sellerPending &&
+    !underAny(pathname, SELLER_PENDING_ALLOWED)
+  ) {
+    return { type: "redirect", to: "/seller/pending" };
   }
 
   return { type: "allow" };

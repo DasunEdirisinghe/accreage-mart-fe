@@ -39,6 +39,16 @@ export const getCurrentUser = cache(async (): Promise<CurrentUserInfo | null> =>
       next: { tags: [USER_TAGS.CURRENT] },
     });
     const info = ((await res.json()) as { message: RawUserInfo }).message;
+
+    // Keep the session's routing flags in step with the backend (e.g. a seller
+    // that staff has just verified) so middleware sees the change next request.
+    const pending = info.role === "seller" && !info.verified;
+    if (session.user && (session.user.sellerPending ?? false) !== pending) {
+      session.user.sellerPending = pending;
+      session.user.role = info.role;
+      await session.save();
+    }
+
     return {
       id: info.user.id,
       email: info.user.email,

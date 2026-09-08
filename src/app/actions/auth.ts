@@ -14,6 +14,7 @@ interface UserInfo {
   user: { id: string; email: string; fullName: string };
   role: PrimaryRole | null;
   status: "invited" | "active" | "suspended" | "deactivated";
+  verified: boolean;
 }
 
 /**
@@ -34,6 +35,7 @@ async function loadSession(sid: string): Promise<UserInfo> {
       email: info.user.email,
       fullName: info.user.fullName,
       role: info.role,
+      sellerPending: info.role === "seller" && !info.verified,
     };
     session.isLoggedIn = true;
     await session.save();
@@ -291,6 +293,133 @@ export async function resendActivation(email: string): Promise<ResetRequestState
     return { sent: true, devLink: message.dev_link };
   } catch {
     return { sent: true };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Registration
+// ---------------------------------------------------------------------------
+
+export interface RegisterState {
+  error?: string;
+  sent?: boolean;
+  devLink?: string;
+  inputs?: Record<string, string>;
+}
+
+const registerSchema = z
+  .object({
+    role: z.enum(["buyer", "seller"]),
+    fullName: z.string().min(2, "Enter your full name"),
+    businessName: z.string().min(2, "Enter your business name"),
+    email: z.string().email("Enter a valid email"),
+    mobile: z.string().min(6, "Enter a mobile number"),
+    district: z.string().min(1, "Select a district"),
+    buyerType: z.string().optional(),
+    description: z.string().optional(),
+    terms: z.string().optional(),
+  })
+  .refine((d) => d.terms === "on", { message: "Please accept the terms to continue", path: ["terms"] })
+  .refine((d) => d.role !== "buyer" || Boolean(d.buyerType), {
+    message: "Select a buyer type",
+    path: ["buyerType"],
+  });
+
+export async function register(_prev: RegisterState, formData: FormData): Promise<RegisterState> {
+  const raw = {
+    role: formData.get("role"),
+    fullName: (formData.get("fullName") as string | null)?.trim() ?? "",
+    businessName: (formData.get("businessName") as string | null)?.trim() ?? "",
+    email: (formData.get("email") as string | null)?.trim() ?? "",
+    mobile: (formData.get("mobile") as string | null)?.trim() ?? "",
+    district: formData.get("district") ?? "",
+    buyerType: formData.get("buyerType") ?? undefined,
+    description: formData.get("description") ?? undefined,
+    terms: formData.get("terms") ?? undefined,
+  };
+
+  const parsed = registerSchema.safeParse(raw);
+  const inputs = {
+    fullName: raw.fullName,
+    businessName: raw.businessName,
+    email: raw.email,
+    mobile: raw.mobile,
+  };
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Check the form and try again.", inputs };
+  }
+
+  const d = parsed.data;
+  const method = d.role === "buyer" ? AUTH_METHODS.REGISTER_BUYER : AUTH_METHODS.REGISTER_SELLER;
+  const body =
+    d.role === "buyer"
+      ? {
+          full_name: d.fullName,
+          business_name: d.businessName,
+          email: d.email,
+          mobile: d.mobile,
+          district: d.district,
+          buyer_type: d.buyerType,
+        }
+      : {
+          full_name: d.fullName,
+          business_name: d.businessName,
+          email: d.email,
+          mobile: d.mobile,
+          district: d.district,
+          description: d.description ?? "",
+        };
+
+  try {
+    const res = await frappeFetch(method, { method: "POST", body, auth: false });
+    const message = ((await res.json()) as { message: { dev_link?: string } }).message;
+    return { sent: true, devLink: message.dev_link };
+  } catch (error) {
+    return { error: frappeErrorMessage(error), inputs };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Staff / admin provisioning (admin only)
+// ---------------------------------------------------------------------------
+
+export interface CreateStaffState {
+  error?: string;
+  created?: { email: string; devLink?: string };
+}
+
+const createStaffSchema = z.object({
+  fullName: z.string().min(2, "Enter a name"),
+  email: z.string().email("Enter a valid email"),
+  role: z.enum(["Staff", "Admin"]),
+});
+
+export async function createStaff(
+  _prev: CreateStaffState,
+  formData: FormData,
+): Promise<CreateStaffState> {
+  const parsed = createStaffSchema.safeParse({
+    fullName: (formData.get("fullName") as string | null)?.trim() ?? "",
+    email: (formData.get("email") as string | null)?.trim() ?? "",
+    role: formData.get("role"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Check the form." };
+  }
+
+  try {
+    const res = await frappeFetch(AUTH_METHODS.CREATE_STAFF, {
+      method: "POST",
+      body: {
+        full_name: parsed.data.fullName,
+        email: parsed.data.email,
+        role: parsed.data.role,
+      },
+    });
+    const message = ((await res.json()) as { message: { email: string; dev_link?: string } }).message;
+    return { created: { email: message.email, devLink: message.dev_link } };
+  } catch (error) {
+    return { error: frappeErrorMessage(error) };
   }
 }
 

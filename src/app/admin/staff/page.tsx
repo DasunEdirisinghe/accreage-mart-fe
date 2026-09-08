@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { ShieldCheck, Plus } from "lucide-react";
 import { toast } from "sonner";
 
+import { createStaff, type CreateStaffState } from "@/app/actions/auth";
 import { useDB } from "@/hooks/use-db";
-import { addStaffUser, setUserStatus } from "@/lib/services/admin";
+import { setUserStatus } from "@/lib/services/admin";
 import { USER_STATUS_BADGE, canManageStatus } from "@/lib/user-status";
 import { formatDate, initials, cn } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
@@ -25,12 +27,16 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 
+const initialCreateState: CreateStaffState = {};
+
 export default function StaffManagementPage() {
   const db = useDB();
   const [open, setOpen] = React.useState(false);
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [role, setRole] = React.useState<"staff" | "admin">("staff");
+  const [state, formAction, pending] = React.useActionState(createStaff, initialCreateState);
+
+  React.useEffect(() => {
+    if (state.created) toast.success(`Invite sent to ${state.created.email}`);
+  }, [state.created]);
 
   const staff = db.users.filter((u) => ["staff", "admin"].includes(u.role));
 
@@ -50,44 +56,63 @@ export default function StaffManagementPage() {
             <DialogHeader>
               <DialogTitle>Add staff member</DialogTitle>
               <DialogDescription>
-                Staff can review listings, auctions, payments and inquiries. Admins have full control.
+                They&apos;ll get an email with a link to set their password. Staff review listings,
+                auctions, payments and inquiries; admins have full control.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <Label>Full name</Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Staff member name" />
+
+            {state.created ? (
+              <div className="space-y-3">
+                <p className="text-sm">
+                  Account created for <span className="font-medium">{state.created.email}</span> — an
+                  invite has been sent.
+                </p>
+                {state.created.devLink && (
+                  <p className="rounded-md bg-muted p-3 text-xs break-all">
+                    Dev link:{" "}
+                    <Link
+                      href={state.created.devLink.replace(/^https?:\/\/[^/]+/, "")}
+                      className="text-primary underline"
+                    >
+                      {state.created.devLink}
+                    </Link>
+                  </p>
+                )}
+                <DialogFooter>
+                  <Button onClick={() => setOpen(false)}>Done</Button>
+                </DialogFooter>
               </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@accreagemart.lk" />
-              </div>
-              <div className="space-y-2">
-                <Label>Role</Label>
-                <Select value={role} onValueChange={(v) => setRole(v as "staff" | "admin")}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="staff">Staff (operations)</SelectItem>
-                    <SelectItem value="admin">Administrator</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button
-                disabled={!name.trim() || !email.trim()}
-                onClick={() => {
-                  addStaffUser(name, email, role);
-                  toast.success(`${name} added as ${role}`);
-                  setOpen(false);
-                  setName("");
-                  setEmail("");
-                }}
-              >
-                Create account
-              </Button>
-            </DialogFooter>
+            ) : (
+              <form action={formAction} className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full name</Label>
+                  <Input id="fullName" name="fullName" placeholder="Staff member name" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="staffEmail">Email</Label>
+                  <Input id="staffEmail" name="email" type="email" placeholder="name@accreagemart.lk" required />
+                </div>
+                <div className="space-y-2">
+                  <Label>Role</Label>
+                  <Select name="role" defaultValue="Staff" required>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Staff">Staff (operations)</SelectItem>
+                      <SelectItem value="Admin">Administrator</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={pending}>
+                    {pending ? "Creating…" : "Create account"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            )}
           </DialogContent>
         </Dialog>
       </PageHeader>

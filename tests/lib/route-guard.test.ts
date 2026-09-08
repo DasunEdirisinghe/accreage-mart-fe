@@ -62,6 +62,30 @@ describe("resolveRoute", () => {
     expect(resolveRoute(roleless, "/buyer")).toEqual({ type: "redirect", to: "/" });
   });
 
+  it("keeps staff out of the admin-only pages but lets them use the rest of /admin", () => {
+    expect(resolveRoute(staff, "/admin/staff")).toEqual({ type: "redirect", to: "/admin" });
+    expect(resolveRoute(staff, "/admin/users")).toEqual({ type: "redirect", to: "/admin" });
+    expect(resolveRoute(staff, "/admin/approvals")).toEqual({ type: "allow" });
+    expect(resolveRoute(admin, "/admin/staff")).toEqual({ type: "allow" });
+  });
+
+  it("holds an unverified seller at /seller/pending, profile aside", () => {
+    const pending: GuardSession = { isLoggedIn: true, role: "seller", sellerPending: true };
+    expect(resolveRoute(pending, "/seller")).toEqual({ type: "redirect", to: "/seller/pending" });
+    expect(resolveRoute(pending, "/seller/listings")).toEqual({
+      type: "redirect",
+      to: "/seller/pending",
+    });
+    expect(resolveRoute(pending, "/seller/pending")).toEqual({ type: "allow" });
+    expect(resolveRoute(pending, "/seller/profile")).toEqual({ type: "allow" });
+  });
+
+  it("lets a verified seller through", () => {
+    expect(resolveRoute({ ...seller, sellerPending: false }, "/seller/listings")).toEqual({
+      type: "allow",
+    });
+  });
+
   it("does not guard routes outside the protected prefixes", () => {
     expect(resolveRoute(guest, "/some/other/page")).toEqual({ type: "allow" });
   });

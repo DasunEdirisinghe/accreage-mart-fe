@@ -17,7 +17,11 @@ export async function middleware(request: NextRequest) {
   const session = await getIronSession<SessionData>(request, response, sessionOptions);
 
   const outcome = resolveRoute(
-    { isLoggedIn: Boolean(session.isLoggedIn), role: session.user?.role ?? null },
+    {
+      isLoggedIn: Boolean(session.isLoggedIn),
+      role: session.user?.role ?? null,
+      sellerPending: session.user?.sellerPending,
+    },
     request.nextUrl.pathname,
   );
 
