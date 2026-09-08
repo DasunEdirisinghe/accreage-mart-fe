@@ -49,40 +49,41 @@
     {
       "id": "1.2",
       "title": "Data model & config foundations",
-      "status": "todo",
+      "status": "done",
       "acceptanceCriteria": [
         {
           "text": "src/lib/types.ts: UserStatus includes 'invited'",
-          "done": false
+          "done": true
         },
         {
           "text": "/admin/users and /admin/staff render an 'Invited' status badge with no row actions until the account is active",
-          "done": false
+          "done": true
         },
         {
           "text": ".env.example documents NEXT_PUBLIC_FRAPPE_URL, SECRET_COOKIE_PASSWORD, NEXT_PUBLIC_ENABLE_DEMO_LOGIN",
-          "done": false
+          "done": true
         },
         {
           "text": "epic.md Decisions, accepted-risk, and Backend config checklist sections reviewed and current",
-          "done": false
+          "done": true
         },
         {
           "text": "npm run build green; no unhandled UserStatus in switch/maps (tsc strict)",
-          "done": false
+          "done": true
         }
       ],
       "tests": [
+        "tests/lib/user-status.test.ts",
         "tests/app/admin/users-status-badge.test.tsx",
         "tests/app/admin/staff-status-badge.test.tsx"
       ],
       "verify": {
-        "tests": "",
-        "build": "",
-        "date": ""
+        "tests": "pass",
+        "build": "green",
+        "date": "2026-09-08"
       },
       "commit": "",
-      "notes": "Small. Everything downstream depends on the 'invited' status existing."
+      "notes": "Shared status->badge map + canManageStatus() live in src/lib/user-status.ts so /admin/users and /admin/staff stay in sync. No seed data changed — an 'invited' user only appears once Story 1.11 provisions one; tests add one via mutate()."
     },
     {
       "id": "1.3",
