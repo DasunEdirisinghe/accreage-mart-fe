@@ -73,3 +73,60 @@ export async function frappeFetch(
 
   return res;
 }
+
+export interface FrappeLoginResult {
+  ok: boolean;
+  /** The Frappe session id, on success. */
+  sid?: string;
+  fullName?: string;
+  /** Frappe's message on failure (not shown to the user verbatim). */
+  message?: string;
+}
+
+/**
+ * Frappe native session login. Kept separate from `frappeFetch` because a 401 here
+ * means "wrong credentials" (a normal outcome), not "session dead", and because the
+ * caller needs the raw `Set-Cookie` to lift the `sid`.
+ */
+export async function frappeLogin(usr: string, pwd: string): Promise<FrappeLoginResult> {
+  const res = await fetch(frappeUrl("login"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ usr, pwd }),
+    cache: "no-store",
+  });
+
+  const data = (await res.json().catch(() => ({}))) as { message?: string; full_name?: string };
+
+  if (!res.ok) {
+    return { ok: false, message: data.message };
+  }
+
+  return { ok: true, sid: extractSid(res.headers), fullName: data.full_name };
+}
+
+/** Best-effort Frappe logout for a given sid — failures are swallowed. */
+export async function frappeLogout(sid: string): Promise<void> {
+  try {
+    await fetch(frappeUrl("logout"), {
+      method: "POST",
+      headers: { Cookie: `sid=${sid}`, Accept: "application/json" },
+      cache: "no-store",
+    });
+  } catch {
+    /* the local session is cleared regardless */
+  }
+}
+
+function extractSid(headers: Headers): string | undefined {
+  const cookies =
+    typeof headers.getSetCookie === "function"
+      ? headers.getSetCookie()
+      : [headers.get("set-cookie")].filter((value): value is string => Boolean(value));
+
+  for (const cookie of cookies) {
+    const match = /(?:^|;\s*)sid=([^;]+)/.exec(cookie);
+    if (match?.[1] && match[1] !== "Guest") return match[1];
+  }
+  return undefined;
+}

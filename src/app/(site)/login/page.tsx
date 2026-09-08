@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Leaf, ShoppingBasket, Store, ShieldCheck, UserCog } from "lucide-react";
-import { toast } from "sonner";
 
+import { login, type LoginState } from "@/app/actions/auth";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,26 +20,25 @@ const DEMO_ACCOUNTS = [
   { role: "admin" as const, icon: UserCog, label: "Admin", desc: "Full platform control" },
 ];
 
-const HOME: Record<string, string> = { buyer: "/buyer", seller: "/seller", staff: "/admin", admin: "/admin" };
+const DEMO_HOME: Record<string, string> = { buyer: "/buyer", seller: "/seller", staff: "/admin", admin: "/admin" };
+const DEMO_LOGIN_ENABLED = process.env.NEXT_PUBLIC_ENABLE_DEMO_LOGIN === "true";
+
+const initialState: LoginState = {};
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { loginWithEmail, loginAs } = useAuth();
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  return (
+    <React.Suspense fallback={null}>
+      <LoginCard />
+    </React.Suspense>
+  );
+}
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // WIRING LATER: POST /api/method/login with usr/pwd
-    if (loginWithEmail(email)) {
-      toast.success("Signed in");
-      router.push("/");
-    } else {
-      toast.error("No account found", {
-        description: "In this demo, use one of the quick sign-in options below.",
-      });
-    }
-  };
+function LoginCard() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "";
+  const { loginAs } = useAuth();
+  const [state, formAction, pending] = React.useActionState(login, initialState);
 
   return (
     <div className="container flex min-h-[80vh] items-center justify-center py-10">
@@ -52,62 +51,68 @@ export default function LoginPage() {
           <CardDescription>Sign in to your Accreage Mart account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <form onSubmit={submit} className="space-y-4">
+          <form action={formAction} className="space-y-4">
+            <input type="hidden" name="next" value={next} />
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="usr">Email</Label>
               <Input
-                id="email"
+                id="usr"
+                name="usr"
                 type="email"
                 placeholder="you@business.lk"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                defaultValue={state.inputs?.usr}
                 required
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="pwd">Password</Label>
                 <Link href="/forgot-password" className="text-xs text-primary hover:underline">
                   Forgot password?
                 </Link>
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <Input id="pwd" name="pwd" type="password" placeholder="••••••••" required />
             </div>
-            <Button type="submit" className="w-full">
-              Sign in
+
+            {state.error && (
+              <p className="text-sm text-destructive" role="alert">
+                {state.error}
+              </p>
+            )}
+
+            <Button type="submit" className="w-full" disabled={pending}>
+              {pending ? "Signing in…" : "Sign in"}
             </Button>
           </form>
 
-          <div className="flex items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground">demo quick sign-in</span>
-            <Separator className="flex-1" />
-          </div>
+          {DEMO_LOGIN_ENABLED && (
+            <>
+              <div className="flex items-center gap-3">
+                <Separator className="flex-1" />
+                <span className="text-xs text-muted-foreground">demo quick sign-in</span>
+                <Separator className="flex-1" />
+              </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            {DEMO_ACCOUNTS.map((a) => (
-              <button
-                key={a.role}
-                onClick={() => {
-                  loginAs(a.role);
-                  router.push(HOME[a.role]);
-                }}
-                className="flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors hover:border-primary hover:bg-secondary"
-              >
-                <span className="flex items-center gap-1.5 text-sm font-semibold">
-                  <a.icon className="h-4 w-4 text-primary" /> {a.label}
-                </span>
-                <span className="text-xs text-muted-foreground">{a.desc}</span>
-              </button>
-            ))}
-          </div>
+              <div className="grid grid-cols-2 gap-2">
+                {DEMO_ACCOUNTS.map((a) => (
+                  <button
+                    key={a.role}
+                    type="button"
+                    onClick={() => {
+                      loginAs(a.role);
+                      router.push(DEMO_HOME[a.role]);
+                    }}
+                    className="flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors hover:border-primary hover:bg-secondary"
+                  >
+                    <span className="flex items-center gap-1.5 text-sm font-semibold">
+                      <a.icon className="h-4 w-4 text-primary" /> {a.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{a.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           <p className="text-center text-sm text-muted-foreground">
             New to Accreage Mart?{" "}
