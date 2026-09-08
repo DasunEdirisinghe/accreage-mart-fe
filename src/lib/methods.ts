@@ -27,6 +27,8 @@ export enum AUTH_METHODS {
   RESEND_ACTIVATION = "accreage_mart.api.auth.resend_activation",
   /** Admin provisions a Staff/Admin account (emails an invite). Admin only. */
   CREATE_STAFF = "accreage_mart.api.auth.create_staff",
+  /** Unverified buyer/seller profiles awaiting approval. Staff/Admin only. */
+  PENDING_ACCOUNTS = "accreage_mart.api.auth.pending_accounts",
   /** Staff/Admin marks a buyer/seller profile as verified. Staff/Admin only. */
   VERIFY_ACCOUNT = "accreage_mart.api.auth.verify_account",
 }
