@@ -82,7 +82,7 @@
         "build": "green",
         "date": "2026-09-08"
       },
-      "commit": "",
+      "commit": "4c04044",
       "notes": "Shared status->badge map + canManageStatus() live in src/lib/user-status.ts so /admin/users and /admin/staff stay in sync. No seed data changed — an 'invited' user only appears once Story 1.11 provisions one; tests add one via mutate()."
     },
     {
