@@ -1,0 +1,245 @@
+{
+  "epic": "01-auth",
+  "srsModule": "Module 3 — User Role Management (+ auth/session parts of Module 2)",
+  "status": "todo",
+  "updated": "2026-09-08",
+  "stories": [
+    {
+      "id": "1.1",
+      "title": "Vitest + RTL test harness",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "Deps installed: vitest, @vitejs/plugin-react, @testing-library/react, @testing-library/user-event, @testing-library/jest-dom, jsdom", "done": false },
+        { "text": "vitest.config.ts: environment jsdom, setupFiles ['tests/setup.ts'], @/* -> src/* alias", "done": false },
+        { "text": "tests/setup.ts wires jest-dom matchers and resets the in-memory store between every test", "done": false },
+        { "text": "package.json has 'test' (run once) and 'test:watch' scripts", "done": false },
+        { "text": "tests/lib/utils.test.ts smoke test covers formatLKR / formatDate and passes", "done": false },
+        { "text": "npm run test passes; npm run build stays green", "done": false }
+      ],
+      "tests": ["tests/setup.ts", "tests/lib/utils.test.ts"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "FE only, no backend. Pinned by docs/testing.md 'First-time setup'. Blocks every other story's verification."
+    },
+    {
+      "id": "1.2",
+      "title": "Data model & config foundations",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "src/lib/types.ts: UserStatus includes 'invited'", "done": false },
+        { "text": "/admin/users and /admin/staff render an 'Invited' status badge with no row actions until the account is active", "done": false },
+        { "text": ".env.example documents NEXT_PUBLIC_FRAPPE_URL, SECRET_COOKIE_PASSWORD, NEXT_PUBLIC_ENABLE_DEMO_LOGIN", "done": false },
+        { "text": "epic.md Decisions, accepted-risk, and Backend config checklist sections reviewed and current", "done": false },
+        { "text": "npm run build green; no unhandled UserStatus in switch/maps (tsc strict)", "done": false }
+      ],
+      "tests": ["tests/app/admin/users-status-badge.test.tsx", "tests/app/admin/staff-status-badge.test.tsx"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "Small. Everything downstream depends on the 'invited' status existing."
+    },
+    {
+      "id": "1.3",
+      "title": "Frappe app scaffold + role & identity model",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "accreage_mart/api/ package created with auth.py; accreage_mart/utils/profile.py created", "done": false },
+        { "text": "Role fixtures Buyer / Seller / Staff / Admin exported in hooks.py; bench migrate recreates them", "done": false },
+        { "text": "Buyer Profile DocType: user (Link User, unique), business_name, buyer_type (Select), location, district (Select 25 districts), verified (Check)", "done": false },
+        { "text": "Seller Profile DocType: user (Link User, unique), business_name, location, district, description, trust_score (default 0), verified (Check), total_sales (default 0)", "done": false },
+        { "text": "DocType field names match src/lib/types.ts shapes (snake_case <-> camelCase mapping documented)", "done": false },
+        { "text": "get_user_info returns { user, role, status, verified, profile }; role derived by precedence Admin>Staff>Seller>Buyer; Administrator -> 'admin'; role-less user -> role null", "done": false },
+        { "text": "get_user_info does not error for Administrator / role-less / profile-less users", "done": false },
+        { "text": "Helper that creates a User sets user_type 'System User', persona role + System Manager, status 'invited'", "done": false },
+        { "text": "after_install seeds admin@accreagemart.lk as an Admin (status invited)", "done": false },
+        { "text": "Endpoint guard matrix documented in auth.py docstrings", "done": false }
+      ],
+      "tests": ["accreage_mart/accreage_mart/tests/test_auth_model.py"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "Backend. User runs: bench migrate && bench clear-cache, then bench run-tests --app accreage_mart."
+    },
+    {
+      "id": "1.4",
+      "title": "Frontend Frappe client plumbing",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "src/lib/frappe.ts frappeFetch: prefixes NEXT_PUBLIC_FRAPPE_URL + /api/method/, attaches iron-session sid server-side, JSON-encodes body, passes next (tags/revalidate) through", "done": false },
+        { "text": "frappeFetch throws Error('Frappe request failed: <status> <body>') on non-2xx", "done": false },
+        { "text": "frappeFetch surfaces Frappe 401/403 as a distinct 'session dead' signal callers can act on", "done": false },
+        { "text": "src/lib/frappe-error.ts parseFrappeError extracts the human message from _server_messages / exception / message", "done": false },
+        { "text": "src/lib/methods.ts AUTH_METHODS enum holds every auth method path; no inline method strings elsewhere", "done": false },
+        { "text": "src/lib/tags.ts defines the user/session cache tags as enums", "done": false }
+      ],
+      "tests": ["tests/lib/frappe.test.ts", "tests/lib/frappe-error.test.ts"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "Tests mock global fetch. Server-only module — never imported by a client component."
+    },
+    {
+      "id": "1.5",
+      "title": "Session + login / logout",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "src/lib/session.ts: iron-session config, SessionData type, getSession(), ClientSession (omits frappeSid)", "done": false },
+        { "text": "app/actions/auth.ts login: zod usr/pwd -> Frappe login -> parse Set-Cookie sid -> store in iron-session -> get_user_info -> redirect to role home", "done": false },
+        { "text": "app/actions/auth.ts logout: Frappe logout + destroy iron-session + redirect /login", "done": false },
+        { "text": "/login wired to useActionState with the FormState pattern; pending state disables submit", "done": false },
+        { "text": "Distinct messages for suspended / deactivated / invited; invited offers 'resend activation link'", "done": false },
+        { "text": "Wrong-password and unknown-email return the same generic message (no user enumeration)", "done": false },
+        { "text": "?next= is honoured only for same-origin relative paths; //host and absolute URLs are rejected", "done": false },
+        { "text": "Authenticated user hitting /login or /register is redirected to their role home", "done": false },
+        { "text": "Demo quick-login cards render only when NEXT_PUBLIC_ENABLE_DEMO_LOGIN === 'true'", "done": false }
+      ],
+      "tests": ["tests/app/actions/auth-login.test.ts", "tests/app/actions/auth-logout.test.ts", "tests/lib/next-param.test.ts"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "Tests mock frappeFetch + iron-session. Confirm the real Set-Cookie shape against the running site."
+    },
+    {
+      "id": "1.6",
+      "title": "Middleware route guard",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "src/lib/route-guard.ts resolveRoute(session, pathname) is pure and returns {type:'allow'} | {type:'redirect', to}", "done": false },
+        { "text": "Public route set + isPublic() covers /, /about, /contact, /marketplace(+/[id]), /auctions(+/[id]), /sellers/[id], /login, /register, /forgot-password, /set-password, /legal/terms, /api/**, static/_next", "done": false },
+        { "text": "Protected prefixes /buyer /seller /admin; unauthenticated -> /login?next=<path>", "done": false },
+        { "text": "Role/prefix mismatch -> redirect to the user's own role home", "done": false },
+        { "text": "suspended / deactivated -> /account/suspended", "done": false },
+        { "text": "src/middleware.ts is a thin shell over resolveRoute", "done": false },
+        { "text": "/account/suspended explainer page exists", "done": false },
+        { "text": "DashboardShell role-guard branch removed; sidebar + sheet + SiteHeader chrome unchanged", "done": false }
+      ],
+      "tests": ["tests/lib/route-guard.test.ts", "tests/app/account-suspended.test.tsx"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "resolveRoute is the unit-testable core; middleware.ts itself is not exercised by Vitest (edge runtime)."
+    },
+    {
+      "id": "1.7",
+      "title": "Session-backed identity (retire mock auth-provider)",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "src/lib/current-user-info.ts: React.cache'd server read of user + profile + primary role", "done": false },
+        { "text": "src/hooks/use-current-user.ts useCurrentUser() exposes user / sellerProfile / buyerProfile / logout, matching the old useAuth surface", "done": false },
+        { "text": "Initial value is server-rendered so SiteHeader shows no logged-out -> logged-in flash", "done": false },
+        { "text": "avatarColor derived from the name, not read from the backend", "done": false },
+        { "text": "Every former useAuth importer (~15 files) migrated to useCurrentUser()", "done": false },
+        { "text": "src/components/providers/auth-provider.tsx deleted; AuthProvider removed from src/app/layout.tsx", "done": false },
+        { "text": "Mock-dashboard bridge: real session resolves to fixed mock identity per role (buyer->u-buyer-1, seller->u-seller-1, staff->u-staff, admin->u-admin); documented as tech debt", "done": false },
+        { "text": "npm run build green; existing mock dashboards still render for each role", "done": false }
+      ],
+      "tests": ["tests/hooks/use-current-user.test.tsx", "tests/components/layout/site-header.test.tsx", "tests/components/shared/profile-form.test.tsx"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "Highest-blast-radius FE story. Do the useAuth sweep as one mechanical pass and lean on tsc + build."
+    },
+    {
+      "id": "1.8",
+      "title": "Set-password flow + branded transactional email",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "Accreage Mart logo asset (SVG + PNG) added under accreage_mart/public/ and referenced by the FE", "done": false },
+        { "text": "One parameterised HTML email base (agri-green header, 600px single column, amber CTA, footer with expiry note) + plain-text alternative", "done": false },
+        { "text": "Three variants render correctly: buyer/seller welcome, staff invite, password reset", "done": false },
+        { "text": "frappe.sendmail wrapper sends the templated mail", "done": false },
+        { "text": "/set-password?key= page: password + confirm, policy enforced (min 8, >=1 letter, >=1 number, != email/local-part/name, zxcvbn >= 2), inline FormState errors", "done": false },
+        { "text": "set_password(key, pwd): validates key, sets password, flips status invited->active, single-use, then auto-login to role home", "done": false },
+        { "text": "request_password_reset(email): allow_guest, rate-limited, always returns the generic 'if an account exists' response", "done": false },
+        { "text": "resend_activation(email): allow_guest, rate-limited, same generic response, only (re)sends for status 'invited'", "done": false },
+        { "text": "Reset/activation key expiry read from site config; expired or used key -> clear error on /set-password", "done": false },
+        { "text": "Dev fallback: with no SMTP configured the endpoints include the /set-password URL in the JSON response and the UI shows a 'continue here' link", "done": false },
+        { "text": "/forgot-password stub wired to request_password_reset with a 'check your email' state", "done": false }
+      ],
+      "tests": ["tests/app/set-password.test.tsx", "tests/app/actions/credentials.test.ts", "tests/app/forgot-password.test.tsx", "accreage_mart/accreage_mart/tests/test_credentials.py"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "SMTP delivery NOT required to pass — dev link path must work end to end. Shared by 1.9 / 1.10 / 1.11."
+    },
+    {
+      "id": "1.9",
+      "title": "Buyer registration",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "register_buyer: creates User (status 'invited', roles Buyer + System Manager) + Buyer Profile (verified false), triggers welcome email", "done": false },
+        { "text": "register_buyer is allow_guest and rate-limited", "done": false },
+        { "text": "/register buyer branch wired to a register server action; zod validates full name, business name, email, mobile, district enum, buyer type enum, terms checkbox; no password field", "done": false },
+        { "text": "Terms checkbox links to a placeholder /legal/terms page", "done": false },
+        { "text": "Mobile is stored without uniqueness enforcement (buyer + seller may share a number)", "done": false },
+        { "text": "Success shows a 'check your email' state (no auto-login yet)", "done": false },
+        { "text": "Duplicate email, existing account still 'invited' -> resend activation link", "done": false },
+        { "text": "Duplicate email, existing active account -> 'account exists, sign in instead'", "done": false },
+        { "text": "After set-password the buyer lands on /buyer and is not gated by verified", "done": false }
+      ],
+      "tests": ["tests/app/actions/register-buyer.test.ts", "tests/app/register-buyer.test.tsx", "accreage_mart/accreage_mart/tests/test_register.py"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "Depends on 1.8. Buyer gating decision: activated buyers transact immediately (epic Decisions 3)."
+    },
+    {
+      "id": "1.10",
+      "title": "Seller registration + pending gate",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "register_seller: creates User (status 'invited', roles Seller + System Manager) + Seller Profile (verified false, trust_score 0), triggers welcome email", "done": false },
+        { "text": "register_seller is allow_guest and rate-limited", "done": false },
+        { "text": "/register seller branch wired: common fields, no buyer type, optional short business description", "done": false },
+        { "text": "resolveRoute: activated + unverified seller on /seller/** (except /seller/profile) -> /seller/pending", "done": false },
+        { "text": "/seller/pending minimal page explains staff verification is in progress", "done": false },
+        { "text": "Verified seller passes straight through to /seller", "done": false },
+        { "text": "Seller login lands on /seller or /seller/pending per verified state", "done": false }
+      ],
+      "tests": ["tests/app/actions/register-seller.test.ts", "tests/lib/route-guard-seller.test.ts", "tests/app/seller-pending.test.tsx", "accreage_mart/accreage_mart/tests/test_register.py"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "The pending gate is only demonstrable once 1.13 (or Frappe desk) can flip verified."
+    },
+    {
+      "id": "1.11",
+      "title": "Staff & admin provisioning",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "/register never exposes staff or admin (asserted by a test)", "done": false },
+        { "text": "create_staff: caller must be Admin or Administrator, else 403", "done": false },
+        { "text": "create_staff: creates User (status 'invited', role Staff or Admin + System Manager), triggers the staff-invite email; no temp password is returned", "done": false },
+        { "text": "/admin/staff 'Add staff member' dialog wired to create_staff via a server action", "done": false },
+        { "text": "resolveRoute: /admin/staff and /admin/users restricted to Admin / Administrator; Staff may use other /admin pages", "done": false },
+        { "text": "Administrator resolves to 'admin' and lands on /admin", "done": false },
+        { "text": "setUserStatus wired to User.enabled + status (suspend / reactivate) from /admin/staff and /admin/users", "done": false }
+      ],
+      "tests": ["tests/app/actions/create-staff.test.ts", "tests/lib/route-guard-admin.test.ts", "accreage_mart/accreage_mart/tests/test_create_staff.py"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "Depends on 1.8. First admin comes from 1.3 after_install seed or Frappe Administrator."
+    },
+    {
+      "id": "1.12",
+      "title": "Epic acceptance & manual E2E script",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "epic.md gains a step-by-step manual E2E script: register -> receive link (or dev link) -> set password -> auto-login -> guard check, for buyer, seller, staff, admin", "done": false },
+        { "text": "Frappe Activity Log confirmed to record login, failed login, password reset, staff creation", "done": false },
+        { "text": "All stories 1.1-1.11 (and 1.13 if in scope) have every acceptance criterion done and a filled verify block", "done": false },
+        { "text": "Epic status set to done in stories.json and in docs/epics/README.md", "done": false }
+      ],
+      "tests": [],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "No automated tests — this is the close-out/roll-up story. Playwright is not set up."
+    },
+    {
+      "id": "1.13",
+      "title": "Account approvals screen",
+      "status": "todo",
+      "acceptanceCriteria": [
+        { "text": "Admin surface lists active-but-unverified buyers and sellers (reusing existing approvals-queue components)", "done": false },
+        { "text": "'Approve' action calls verify_account(user); Staff/Admin only", "done": false },
+        { "text": "verify_account sets profile.verified = true and creates a notification for the user", "done": false },
+        { "text": "Approving a seller immediately lifts the /seller/pending gate for that account", "done": false }
+      ],
+      "tests": ["tests/app/actions/verify-account.test.ts", "accreage_mart/accreage_mart/tests/test_verify_account.py"],
+      "verify": { "tests": "", "build": "", "date": "" },
+      "commit": "",
+      "notes": "In scope per epic Decisions 7. If dropped, verified is flipped via Frappe desk and this moves to Epic 02."
+    }
+  ]
+}
