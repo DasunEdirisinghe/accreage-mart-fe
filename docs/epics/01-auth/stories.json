@@ -43,7 +43,7 @@
         "build": "green",
         "date": "2026-09-08"
       },
-      "commit": "b577b3a",
+      "commit": "64e687a",
       "notes": "FE only, no backend. Pinned by docs/testing.md 'First-time setup'. Config is vitest.config.mts (not .ts) because the repo package.json has no type:module and vite-tsconfig-paths v5 is ESM-only. Pre-existing root-owned .next/ (from an earlier Docker/sudo build) had to be moved aside for `next build` — unrelated to this story."
     },
     {
