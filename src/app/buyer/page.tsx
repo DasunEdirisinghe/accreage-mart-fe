@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Package, Gavel, Star, Wallet, ArrowRight } from "lucide-react";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_VARIANT } from "@/lib/services/orders";
 import { formatLKR, formatDate } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
@@ -19,7 +19,7 @@ import {
 
 export default function BuyerDashboard() {
   const db = useDB();
-  const { user, buyerProfile } = useAuth();
+  const { user, buyerProfile } = useCurrentUser();
   if (!buyerProfile) return null;
 
   const myOrders = db.orders.filter((o) => o.buyerId === buyerProfile.id);

@@ -5,7 +5,7 @@ import { Plus, Trash2, Tags, Eye } from "lucide-react";
 import { toast } from "sonner";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { deleteListing } from "@/lib/services/listings";
 import { formatLKR, formatDate } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
@@ -19,7 +19,7 @@ import {
 
 export default function SellerListingsPage() {
   const db = useDB();
-  const { sellerProfile } = useAuth();
+  const { sellerProfile } = useCurrentUser();
   if (!sellerProfile) return null;
 
   const mine = db.listings.filter((l) => l.sellerId === sellerProfile.id);

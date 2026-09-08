@@ -5,6 +5,7 @@ import {
   ClipboardCheck,
   Gavel,
   Users,
+  UserCheck,
   Receipt,
   HelpCircle,
   Star,
@@ -16,6 +17,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/accounts", label: "Account approvals", icon: UserCheck },
   { href: "/admin/approvals", label: "Listing approvals", icon: ClipboardCheck },
   { href: "/admin/auctions", label: "Auction approvals", icon: Gavel },
   { href: "/admin/payments", label: "Payment review", icon: Receipt },
@@ -29,7 +31,7 @@ const NAV = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardShell allowedRoles={["staff", "admin"]} title="Admin" nav={NAV}>
+    <DashboardShell title="Admin" nav={NAV}>
       {children}
     </DashboardShell>
   );

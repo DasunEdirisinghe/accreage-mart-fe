@@ -3,7 +3,7 @@
 import { toast } from "sonner";
 import { ShieldCheck } from "lucide-react";
 
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { initials, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 
 /** Shared profile editor for buyers and sellers (SRS 2.2). */
 export function ProfileForm() {
-  const { user, sellerProfile, buyerProfile } = useAuth();
+  const { user, sellerProfile, buyerProfile } = useCurrentUser();
   if (!user) return null;
 
   const businessName = sellerProfile?.businessName ?? buyerProfile?.businessName ?? "";

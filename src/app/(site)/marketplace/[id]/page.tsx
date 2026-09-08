@@ -16,7 +16,7 @@ import {
 import { toast } from "sonner";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { getListingDetails } from "@/lib/services/listings";
 import { placeOrder } from "@/lib/services/orders";
 import { getOrCreateThread } from "@/lib/services/engagement";
@@ -43,7 +43,7 @@ export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const db = useDB();
   const router = useRouter();
-  const { user, buyerProfile, loginAs } = useAuth();
+  const { user, buyerProfile } = useCurrentUser();
 
   const details = getListingDetails(db, id);
   const [qty, setQty] = React.useState("");
@@ -241,8 +241,8 @@ export default function ListingDetailPage() {
                       </DialogContent>
                     </Dialog>
                   ) : (
-                    <Button className="w-full" size="lg" onClick={() => loginAs("buyer")}>
-                      Sign in as buyer to order
+                    <Button className="w-full" size="lg" asChild>
+                      <Link href="/login">Sign in as buyer to order</Link>
                     </Button>
                   )}
                 </>

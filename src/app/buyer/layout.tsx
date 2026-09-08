@@ -23,7 +23,7 @@ const NAV = [
 
 export default function BuyerLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardShell allowedRoles={["buyer"]} title="Buyer" nav={NAV}>
+    <DashboardShell title="Buyer" nav={NAV}>
       {children}
     </DashboardShell>
   );

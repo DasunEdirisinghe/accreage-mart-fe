@@ -3,7 +3,7 @@
 import { Star } from "lucide-react";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { formatDate } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function BuyerReviewsPage() {
   const db = useDB();
-  const { buyerProfile } = useAuth();
+  const { buyerProfile } = useCurrentUser();
   if (!buyerProfile) return null;
 
   const myReviews = db.reviews.filter((r) => r.buyerId === buyerProfile.id);

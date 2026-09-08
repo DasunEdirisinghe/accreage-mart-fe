@@ -7,7 +7,7 @@ import { ChevronLeft, Gavel, BrainCircuit, Trophy, MapPin, ShieldCheck } from "l
 import { toast } from "sonner";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { getAuctionDetails, placeBid } from "@/lib/services/auctions";
 import { cn, formatLKR, formatDateTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import { TimeLeft } from "@/components/shared/time-left";
 export default function AuctionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const db = useDB();
-  const { user, buyerProfile, loginAs } = useAuth();
+  const { user, buyerProfile } = useCurrentUser();
   const [amount, setAmount] = React.useState("");
 
   const details = getAuctionDetails(db, id);
@@ -239,8 +239,8 @@ export default function AuctionDetailPage() {
                   )}
                 </div>
               ) : (
-                <Button className="w-full" size="lg" onClick={() => loginAs("buyer")}>
-                  Sign in as buyer to bid
+                <Button className="w-full" size="lg" asChild>
+                  <Link href="/login">Sign in as buyer to bid</Link>
                 </Button>
               )}
             </CardContent>

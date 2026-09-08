@@ -25,7 +25,7 @@ const NAV = [
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardShell allowedRoles={["seller"]} title="Seller" nav={NAV}>
+    <DashboardShell title="Seller" nav={NAV}>
       {children}
     </DashboardShell>
   );

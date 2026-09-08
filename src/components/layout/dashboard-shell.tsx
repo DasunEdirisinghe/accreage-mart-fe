@@ -2,16 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Leaf, PanelLeft, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SiteHeader } from "@/components/layout/site-header";
-import type { Role } from "@/lib/types";
 
 export interface NavItem {
   href: string;
@@ -20,50 +17,18 @@ export interface NavItem {
 }
 
 interface DashboardShellProps {
-  allowedRoles: Role[];
   title: string;
   nav: NavItem[];
   children: React.ReactNode;
 }
 
 /**
- * Shared sidebar shell for buyer / seller / admin areas.
- * Guards by role: if the current mock user doesn't match, offers a
- * one-click role switch (demo convenience instead of a hard redirect).
+ * Sidebar + header chrome for the buyer / seller / admin areas.
+ * Access control is handled by src/middleware.ts (see src/lib/route-guard.ts) —
+ * this component only lays out the shell.
  */
-export function DashboardShell({ allowedRoles, title, nav, children }: DashboardShellProps) {
+export function DashboardShell({ title, nav, children }: DashboardShellProps) {
   const pathname = usePathname();
-  const { user, loginAs } = useAuth();
-  const router = useRouter();
-
-  if (!user || !allowedRoles.includes(user.role)) {
-    const target = allowedRoles[0] as Exclude<Role, "public">;
-    return (
-      <div className="flex min-h-screen flex-col">
-        <SiteHeader />
-        <main className="container flex flex-1 items-center justify-center py-16">
-          <Card className="w-full max-w-md text-center">
-            <CardHeader>
-              <CardTitle>{title} access</CardTitle>
-              <CardDescription>
-                {user
-                  ? `You are signed in as a ${user.role}. This area is for ${allowedRoles.join(" / ")} accounts.`
-                  : `Sign in to access the ${title.toLowerCase()}. In this demo you can enter with one click.`}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              <Button onClick={() => loginAs(target === "staff" ? "admin" : target)}>
-                Continue as demo {target === "staff" ? "admin" : target}
-              </Button>
-              <Button variant="outline" onClick={() => router.push("/")}>
-                Back to home
-              </Button>
-            </CardContent>
-          </Card>
-        </main>
-      </div>
-    );
-  }
 
   const sidebar = (
     <nav className="flex flex-col gap-1">
