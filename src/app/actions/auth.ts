@@ -21,13 +21,14 @@ interface UserInfo {
  * frontend session. Returns the account info so the caller can gate / redirect.
  */
 async function loadSession(sid: string): Promise<UserInfo> {
-  const session = await getSession();
-  session.frappeSid = sid;
-
-  const res = await frappeFetch(AUTH_METHODS.GET_USER_INFO, { cache: "no-store" });
+  // Pass the sid explicitly — the session cookie hasn't been saved yet, so
+  // frappeFetch can't read it from storage.
+  const res = await frappeFetch(AUTH_METHODS.GET_USER_INFO, { cache: "no-store", sid });
   const info = ((await res.json()) as { message: UserInfo }).message;
 
   if (info.status === "active") {
+    const session = await getSession();
+    session.frappeSid = sid;
     session.user = {
       id: info.user.id,
       email: info.user.email,

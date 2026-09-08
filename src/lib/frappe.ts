@@ -36,16 +36,23 @@ type FrappeFetchInit = Omit<RequestInit, "body"> & {
   next?: { tags?: string[]; revalidate?: number | false };
   /** Attach the session `sid`. Default true. Set false for guest calls (login, register). */
   auth?: boolean;
+  /**
+   * Use this `sid` instead of reading it from the stored session. Needed right
+   * after login, before the session cookie has been saved.
+   */
+  sid?: string;
 };
 
 export async function frappeFetch(
   pathOrMethod: string,
   init: FrappeFetchInit = {},
 ): Promise<Response> {
-  const { body, headers, next, auth = true, ...rest } = init;
+  const { body, headers, next, auth = true, sid, ...rest } = init;
 
   let cookieHeader = "";
-  if (auth) {
+  if (sid) {
+    cookieHeader = `sid=${sid}`;
+  } else if (auth) {
     const session = await getSession();
     if (session.frappeSid) cookieHeader = `sid=${session.frappeSid}`;
   }
