@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { useDB } from "@/hooks/use-db";
 import { setUserStatus } from "@/lib/services/admin";
+import { USER_STATUS_BADGE, canManageStatus } from "@/lib/user-status";
 import { formatDate, initials, cn } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +18,6 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const STATUS_VARIANT = { active: "success", suspended: "warning", deactivated: "muted" } as const;
 
 export default function UserManagementPage() {
   const db = useDB();
@@ -71,31 +70,37 @@ export default function UserManagementPage() {
                     </TableCell>
                     <TableCell className="text-muted-foreground">{formatDate(u.createdAt)}</TableCell>
                     <TableCell>
-                      <Badge variant={STATUS_VARIANT[u.status]}>{u.status}</Badge>
+                      <Badge variant={USER_STATUS_BADGE[u.status].variant}>
+                        {USER_STATUS_BADGE[u.status].label}
+                      </Badge>
                     </TableCell>
                     <TableCell className="pr-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <UserRound className="h-3.5 w-3.5" /> Manage
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {(["active", "suspended", "deactivated"] as const)
-                            .filter((s) => s !== u.status)
-                            .map((s) => (
-                              <DropdownMenuItem
-                                key={s}
-                                onClick={() => {
-                                  setUserStatus(u.id, s);
-                                  toast.success(`${u.name} → ${s}`);
-                                }}
-                              >
-                                Set {s}
-                              </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {canManageStatus(u.status) ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <UserRound className="h-3.5 w-3.5" /> Manage
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {(["active", "suspended", "deactivated"] as const)
+                              .filter((s) => s !== u.status)
+                              .map((s) => (
+                                <DropdownMenuItem
+                                  key={s}
+                                  onClick={() => {
+                                    setUserStatus(u.id, s);
+                                    toast.success(`${u.name} → ${s}`);
+                                  }}
+                                >
+                                  Set {s}
+                                </DropdownMenuItem>
+                              ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Awaiting activation</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 );

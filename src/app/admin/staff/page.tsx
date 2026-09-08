@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { useDB } from "@/hooks/use-db";
 import { addStaffUser, setUserStatus } from "@/lib/services/admin";
+import { USER_STATUS_BADGE, canManageStatus } from "@/lib/user-status";
 import { formatDate, initials, cn } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -126,10 +127,14 @@ export default function StaffManagementPage() {
                   </TableCell>
                   <TableCell className="text-muted-foreground">{formatDate(u.createdAt)}</TableCell>
                   <TableCell>
-                    <Badge variant={u.status === "active" ? "success" : "warning"}>{u.status}</Badge>
+                    <Badge variant={USER_STATUS_BADGE[u.status].variant}>
+                      {USER_STATUS_BADGE[u.status].label}
+                    </Badge>
                   </TableCell>
                   <TableCell className="pr-4 text-right">
-                    {u.status === "active" ? (
+                    {!canManageStatus(u.status) ? (
+                      <span className="text-xs text-muted-foreground">Awaiting activation</span>
+                    ) : u.status === "active" ? (
                       <Button size="sm" variant="outline" onClick={() => { setUserStatus(u.id, "suspended"); toast.info(`${u.name} suspended`); }}>
                         Suspend
                       </Button>

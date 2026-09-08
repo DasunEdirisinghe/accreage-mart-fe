@@ -6,7 +6,9 @@
 
 export type Role = "public" | "buyer" | "seller" | "staff" | "admin";
 
-export type UserStatus = "active" | "suspended" | "deactivated";
+// "invited": account created (self-registered or staff-provisioned) but the person
+// has not yet set a password via the emailed link, so they cannot sign in.
+export type UserStatus = "invited" | "active" | "suspended" | "deactivated";
 
 export interface User {
   id: string;
