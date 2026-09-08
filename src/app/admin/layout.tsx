@@ -29,7 +29,7 @@ const NAV = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardShell allowedRoles={["staff", "admin"]} title="Admin" nav={NAV}>
+    <DashboardShell title="Admin" nav={NAV}>
       {children}
     </DashboardShell>
   );

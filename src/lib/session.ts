@@ -10,7 +10,6 @@
  */
 
 import { getIronSession, type SessionOptions } from "iron-session";
-import { cookies } from "next/headers";
 
 import type { Role } from "@/lib/types";
 
@@ -48,7 +47,13 @@ export const sessionOptions: SessionOptions = {
   },
 };
 
+/**
+ * Read/write the session from a Server Component, Server Action or Route Handler.
+ * `next/headers` is imported lazily so this module stays importable from middleware
+ * (which only needs `sessionOptions` + the types).
+ */
 export async function getSession() {
+  const { cookies } = await import("next/headers");
   const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
   if (session.isLoggedIn === undefined) {
     session.isLoggedIn = false;
