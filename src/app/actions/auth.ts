@@ -5,9 +5,64 @@ import { z } from "zod";
 
 import { roleHome } from "@/lib/auth-routes";
 import { frappeFetch, frappeLogin, frappeLogout } from "@/lib/frappe";
+import { frappeErrorMessage } from "@/lib/frappe-error";
 import { AUTH_METHODS } from "@/lib/methods";
 import { sanitizeNext } from "@/lib/next-param";
 import { getSession, type PrimaryRole } from "@/lib/session";
+
+interface UserInfo {
+  user: { id: string; email: string; fullName: string };
+  role: PrimaryRole | null;
+  status: "invited" | "active" | "suspended" | "deactivated";
+}
+
+/**
+ * Store the Frappe `sid`, load the account, and — if it's active — persist the
+ * frontend session. Returns the account info so the caller can gate / redirect.
+ */
+async function loadSession(sid: string): Promise<UserInfo> {
+  const session = await getSession();
+  session.frappeSid = sid;
+
+  const res = await frappeFetch(AUTH_METHODS.GET_USER_INFO, { cache: "no-store" });
+  const info = ((await res.json()) as { message: UserInfo }).message;
+
+  if (info.status === "active") {
+    session.user = {
+      id: info.user.id,
+      email: info.user.email,
+      fullName: info.user.fullName,
+      role: info.role,
+    };
+    session.isLoggedIn = true;
+    await session.save();
+  }
+  return info;
+}
+
+async function statusError(sid: string, status: UserInfo["status"], usr: string): Promise<LoginState> {
+  await frappeLogout(sid);
+  (await getSession()).destroy();
+
+  if (status === "invited") {
+    return {
+      error: "This account hasn't been activated yet — check your email for the setup link.",
+      canResendActivation: true,
+      inputs: { usr },
+    };
+  }
+  if (status === "suspended") {
+    return {
+      error: "This account is suspended. Please contact Accreage Mart support.",
+      inputs: { usr },
+    };
+  }
+  return { error: "This account has been deactivated.", inputs: { usr } };
+}
+
+// ---------------------------------------------------------------------------
+// Login
+// ---------------------------------------------------------------------------
 
 export interface LoginState {
   error?: string;
@@ -23,12 +78,6 @@ const loginSchema = z.object({
   pwd: z.string().min(1),
   next: z.string().optional(),
 });
-
-interface UserInfo {
-  user: { id: string; email: string; fullName: string };
-  role: PrimaryRole | null;
-  status: "invited" | "active" | "suspended" | "deactivated";
-}
 
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const usrRaw = (formData.get("usr") as string | null)?.trim() ?? "";
@@ -49,49 +98,24 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
     return { error: GENERIC_CREDENTIALS_ERROR, inputs: { usr } };
   }
 
-  const session = await getSession();
-  session.frappeSid = result.sid;
-
   let info: UserInfo;
   try {
-    const res = await frappeFetch(AUTH_METHODS.GET_USER_INFO, { cache: "no-store" });
-    info = ((await res.json()) as { message: UserInfo }).message;
+    info = await loadSession(result.sid);
   } catch {
-    session.destroy();
+    (await getSession()).destroy();
     return { error: "Could not sign you in. Please try again.", inputs: { usr } };
   }
 
   if (info.status !== "active") {
-    await frappeLogout(result.sid);
-    session.destroy();
-
-    if (info.status === "invited") {
-      return {
-        error: "This account hasn't been activated yet — check your email for the setup link.",
-        canResendActivation: true,
-        inputs: { usr },
-      };
-    }
-    if (info.status === "suspended") {
-      return {
-        error: "This account is suspended. Please contact Accreage Mart support.",
-        inputs: { usr },
-      };
-    }
-    return { error: "This account has been deactivated.", inputs: { usr } };
+    return statusError(result.sid, info.status, usr);
   }
-
-  session.user = {
-    id: info.user.id,
-    email: info.user.email,
-    fullName: info.user.fullName,
-    role: info.role,
-  };
-  session.isLoggedIn = true;
-  await session.save();
 
   redirect(sanitizeNext(next) ?? roleHome(info.role));
 }
+
+// ---------------------------------------------------------------------------
+// Demo quick sign-in (dev only)
+// ---------------------------------------------------------------------------
 
 const DEMO_EMAIL: Record<PrimaryRole, string> = {
   buyer: "buyer@demo.accreagemart.lk",
@@ -100,7 +124,6 @@ const DEMO_EMAIL: Record<PrimaryRole, string> = {
   admin: "admin@demo.accreagemart.lk",
 };
 
-/** One-click sign-in for the demo cards on /login. Dev only. */
 export async function demoLogin(role: PrimaryRole): Promise<void> {
   if (process.env.NEXT_PUBLIC_ENABLE_DEMO_LOGIN !== "true") {
     redirect("/login");
@@ -111,23 +134,132 @@ export async function demoLogin(role: PrimaryRole): Promise<void> {
     redirect("/login?error=demo");
   }
 
-  const session = await getSession();
-  session.frappeSid = result.sid;
-
-  const res = await frappeFetch(AUTH_METHODS.GET_USER_INFO, { cache: "no-store" });
-  const info = ((await res.json()) as { message: UserInfo }).message;
-
-  session.user = {
-    id: info.user.id,
-    email: info.user.email,
-    fullName: info.user.fullName,
-    role: info.role,
-  };
-  session.isLoggedIn = true;
-  await session.save();
-
+  const info = await loadSession(result.sid);
   redirect(roleHome(info.role));
 }
+
+// ---------------------------------------------------------------------------
+// Set password / activate (behind an emailed key)
+// ---------------------------------------------------------------------------
+
+export interface SetPasswordState {
+  error?: string;
+}
+
+const setPasswordSchema = z
+  .object({
+    key: z.string().min(1),
+    password: z
+      .string()
+      .min(8, "Use at least 8 characters")
+      .regex(/[A-Za-z]/, "Include a letter")
+      .regex(/[0-9]/, "Include a number"),
+    confirm: z.string().min(1),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Those passwords don't match",
+    path: ["confirm"],
+  });
+
+export async function setPassword(
+  _prev: SetPasswordState,
+  formData: FormData,
+): Promise<SetPasswordState> {
+  const parsed = setPasswordSchema.safeParse({
+    key: formData.get("key"),
+    password: formData.get("password"),
+    confirm: formData.get("confirm"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Check the form and try again." };
+  }
+
+  const { key, password } = parsed.data;
+
+  let email: string;
+  try {
+    const res = await frappeFetch(AUTH_METHODS.SET_PASSWORD, {
+      method: "POST",
+      body: { key, new_password: password },
+      auth: false,
+    });
+    email = ((await res.json()) as { message: { email: string } }).message.email;
+  } catch (error) {
+    return { error: frappeErrorMessage(error) };
+  }
+
+  // Sign the person in with the password they just chose.
+  const result = await frappeLogin(email, password);
+  let info: UserInfo | null = null;
+  if (result.ok && result.sid) {
+    try {
+      info = await loadSession(result.sid);
+    } catch {
+      info = null;
+    }
+  }
+
+  // redirect() throws by design — keep it out of the try/catch above.
+  if (info && info.status === "active") {
+    redirect(roleHome(info.role));
+  }
+  redirect("/login?set=1");
+}
+
+// ---------------------------------------------------------------------------
+// Forgot password / resend activation
+// ---------------------------------------------------------------------------
+
+export interface ResetRequestState {
+  sent?: boolean;
+  error?: string;
+  /** Dev only — the site has no SMTP configured. */
+  devLink?: string;
+}
+
+const emailSchema = z.string().min(1).email();
+
+export async function requestPasswordReset(
+  _prev: ResetRequestState,
+  formData: FormData,
+): Promise<ResetRequestState> {
+  const email = (formData.get("email") as string | null)?.trim() ?? "";
+  if (!emailSchema.safeParse(email).success) {
+    return { error: "Enter a valid email address." };
+  }
+
+  try {
+    const res = await frappeFetch(AUTH_METHODS.REQUEST_PASSWORD_RESET, {
+      method: "POST",
+      body: { email },
+      auth: false,
+    });
+    const message = ((await res.json()) as { message: { dev_link?: string } }).message;
+    return { sent: true, devLink: message.dev_link };
+  } catch {
+    // Never leak a failure here — the response is deliberately generic.
+    return { sent: true };
+  }
+}
+
+export async function resendActivation(email: string): Promise<ResetRequestState> {
+  try {
+    const res = await frappeFetch(AUTH_METHODS.RESEND_ACTIVATION, {
+      method: "POST",
+      body: { email },
+      auth: false,
+    });
+    const message = ((await res.json()) as { message: { dev_link?: string } }).message;
+    return { sent: true, devLink: message.dev_link };
+  } catch {
+    return { sent: true };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Logout
+// ---------------------------------------------------------------------------
 
 export async function logout(): Promise<void> {
   const session = await getSession();

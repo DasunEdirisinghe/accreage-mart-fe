@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Leaf, ShoppingBasket, Store, ShieldCheck, UserCog } from "lucide-react";
 
-import { demoLogin, login, type LoginState } from "@/app/actions/auth";
+import { demoLogin, login, resendActivation, type LoginState } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,14 @@ function LoginCard() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "";
   const [state, formAction, pending] = React.useActionState(login, initialState);
+  const [resend, setResend] = React.useState<"idle" | "sending" | "sent">("idle");
+
+  const handleResend = async () => {
+    if (!state.inputs?.usr) return;
+    setResend("sending");
+    await resendActivation(state.inputs.usr);
+    setResend("sent");
+  };
 
   return (
     <div className="container flex min-h-[80vh] items-center justify-center py-10">
@@ -71,9 +79,23 @@ function LoginCard() {
             </div>
 
             {state.error && (
-              <p className="text-sm text-destructive" role="alert">
-                {state.error}
-              </p>
+              <div className="space-y-2">
+                <p className="text-sm text-destructive" role="alert">
+                  {state.error}
+                </p>
+                {state.canResendActivation && (
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resend !== "idle"}
+                    className="text-sm font-medium text-primary hover:underline disabled:opacity-60"
+                  >
+                    {resend === "idle" && "Resend the setup link"}
+                    {resend === "sending" && "Sending…"}
+                    {resend === "sent" && "Sent — check your email"}
+                  </button>
+                )}
+              </div>
             )}
 
             <Button type="submit" className="w-full" disabled={pending}>

@@ -61,6 +61,18 @@ function parseServerMessages(serverMessages: string): string[] {
   }
 }
 
+/**
+ * Turn a thrown `frappeFetch` error ("Frappe request failed: <status> <body>")
+ * into a message safe to show a user.
+ */
+export function frappeErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    const match = error.message.match(/Frappe request failed: \d+ ([\s\S]*)/);
+    if (match?.[1]) return parseFrappeError(match[1]);
+  }
+  return FALLBACK;
+}
+
 function stripHtml(value: string): string {
   return value
     .replace(/<[^>]*>/g, "")
