@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Package } from "lucide-react";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_VARIANT } from "@/lib/services/orders";
 import { formatLKR, formatDate } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
@@ -18,7 +18,7 @@ import {
 
 export default function BuyerOrdersPage() {
   const db = useDB();
-  const { buyerProfile } = useAuth();
+  const { buyerProfile } = useCurrentUser();
   if (!buyerProfile) return null;
 
   const orders = db.orders.filter((o) => o.buyerId === buyerProfile.id);

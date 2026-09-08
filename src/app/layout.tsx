@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/components/providers/auth-provider";
+import { CurrentUserProvider } from "@/components/providers/current-user-provider";
+import { getCurrentUser } from "@/lib/current-user-info";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
@@ -12,14 +13,16 @@ export const metadata: Metadata = {
     "Sri Lanka's AI-powered B2B marketplace connecting wholesale agricultural sellers with institutional buyers. Auctions, AI price forecasting and trusted trade.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const currentUser = await getCurrentUser();
+
   return (
     <html lang="en">
       <body className="font-sans">
-        <AuthProvider>
+        <CurrentUserProvider initialUser={currentUser}>
           {children}
           <Toaster position="top-right" richColors />
-        </AuthProvider>
+        </CurrentUserProvider>
       </body>
     </html>
   );

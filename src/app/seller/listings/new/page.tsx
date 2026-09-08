@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { createListing, suggestPrice } from "@/lib/services/listings";
 import { cn, formatLKR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ import {
 export default function NewListingPage() {
   const db = useDB();
   const router = useRouter();
-  const { sellerProfile } = useAuth();
+  const { sellerProfile } = useCurrentUser();
 
   const [sellingType, setSellingType] = React.useState<"direct" | "auction">("direct");
   const [categoryId, setCategoryId] = React.useState("");

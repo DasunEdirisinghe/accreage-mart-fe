@@ -2,11 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Leaf, ShoppingBasket, Store, ShieldCheck, UserCog } from "lucide-react";
 
-import { login, type LoginState } from "@/app/actions/auth";
-import { useAuth } from "@/components/providers/auth-provider";
+import { demoLogin, login, type LoginState } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,13 +13,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
 const DEMO_ACCOUNTS = [
-  { role: "buyer" as const, icon: ShoppingBasket, label: "Buyer", desc: "Cinnamon Hotels, procurement" },
-  { role: "seller" as const, icon: Store, label: "Seller", desc: "Nuwara Fresh Farms" },
+  { role: "buyer" as const, icon: ShoppingBasket, label: "Buyer", desc: "Demo Hotels, procurement" },
+  { role: "seller" as const, icon: Store, label: "Seller", desc: "Demo Fresh Farms" },
   { role: "staff" as const, icon: ShieldCheck, label: "Staff", desc: "Listing & payment review" },
   { role: "admin" as const, icon: UserCog, label: "Admin", desc: "Full platform control" },
 ];
 
-const DEMO_HOME: Record<string, string> = { buyer: "/buyer", seller: "/seller", staff: "/admin", admin: "/admin" };
 const DEMO_LOGIN_ENABLED = process.env.NEXT_PUBLIC_ENABLE_DEMO_LOGIN === "true";
 
 const initialState: LoginState = {};
@@ -34,10 +32,8 @@ export default function LoginPage() {
 }
 
 function LoginCard() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "";
-  const { loginAs } = useAuth();
   const [state, formAction, pending] = React.useActionState(login, initialState);
 
   return (
@@ -98,10 +94,7 @@ function LoginCard() {
                   <button
                     key={a.role}
                     type="button"
-                    onClick={() => {
-                      loginAs(a.role);
-                      router.push(DEMO_HOME[a.role]);
-                    }}
+                    onClick={() => demoLogin(a.role)}
                     className="flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors hover:border-primary hover:bg-secondary"
                   >
                     <span className="flex items-center gap-1.5 text-sm font-semibold">

@@ -5,7 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { Bell, Leaf, Menu, LogOut, LayoutDashboard, UserRound } from "lucide-react";
 
 import { cn, initials } from "@/lib/utils";
-import { useAuth } from "@/components/providers/auth-provider";
+import { demoLogin } from "@/app/actions/auth";
+import { roleHome } from "@/lib/auth-routes";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { useDB } from "@/hooks/use-db";
 import { markNotificationsRead } from "@/lib/services/engagement";
 import { Button } from "@/components/ui/button";
@@ -20,7 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import type { Role } from "@/lib/types";
 
 const NAV = [
   { href: "/marketplace", label: "Marketplace" },
@@ -29,27 +30,20 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-const DASHBOARD_HOME: Record<string, string> = {
-  buyer: "/buyer",
-  seller: "/seller",
-  staff: "/admin",
-  admin: "/admin",
-};
+const DEMO_LOGIN_ENABLED = process.env.NEXT_PUBLIC_ENABLE_DEMO_LOGIN === "true";
+const DEMO_ROLES = ["buyer", "seller", "staff", "admin"] as const;
 
 export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loginAs, logout } = useAuth();
+  const { user, logout } = useCurrentUser();
   const db = useDB();
 
   const unread = user
     ? db.notifications.filter((n) => n.userId === user.id && !n.read)
     : [];
 
-  const switchRole = (role: Exclude<Role, "public">) => {
-    loginAs(role);
-    router.push(DASHBOARD_HOME[role]);
-  };
+  const dashboardHome = user && user.role !== "public" ? roleHome(user.role) : "/";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -154,31 +148,30 @@ export function SiteHeader() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push(DASHBOARD_HOME[user.role] ?? "/")}>
+                  <DropdownMenuItem onClick={() => router.push(dashboardHome)}>
                     <LayoutDashboard /> My dashboard
                   </DropdownMenuItem>
+                  {DEMO_LOGIN_ENABLED && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="text-xs text-muted-foreground">
+                        Demo: switch role
+                      </DropdownMenuLabel>
+                      {DEMO_ROLES.map((r) => (
+                        <DropdownMenuItem key={r} onClick={() => demoLogin(r)}>
+                          <UserRound />
+                          <span className="capitalize">{r}</span>
+                          {user.role === r && (
+                            <Badge variant="secondary" className="ml-auto">
+                              current
+                            </Badge>
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                    </>
+                  )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuLabel className="text-xs text-muted-foreground">
-                    Demo: switch role
-                  </DropdownMenuLabel>
-                  {(["buyer", "seller", "staff", "admin"] as const).map((r) => (
-                    <DropdownMenuItem key={r} onClick={() => switchRole(r)}>
-                      <UserRound />
-                      <span className="capitalize">{r}</span>
-                      {user.role === r && (
-                        <Badge variant="secondary" className="ml-auto">
-                          current
-                        </Badge>
-                      )}
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      logout();
-                      router.push("/");
-                    }}
-                  >
+                  <DropdownMenuItem onClick={() => logout()}>
                     <LogOut /> Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>

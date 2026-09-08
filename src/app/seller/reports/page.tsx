@@ -4,7 +4,7 @@ import * as React from "react";
 import { BrainCircuit, TrendingUp, Wallet, Package, Star } from "lucide-react";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { formatLKR } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -20,7 +20,7 @@ import {
 
 export default function SellerReportsPage() {
   const db = useDB();
-  const { sellerProfile } = useAuth();
+  const { sellerProfile } = useCurrentUser();
   const [commodity, setCommodity] = React.useState(db.forecasts[0].categoryId);
   if (!sellerProfile) return null;
 

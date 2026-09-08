@@ -5,7 +5,7 @@ import { Boxes, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { updateListingStock } from "@/lib/services/listings";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -22,7 +22,7 @@ const LOW_STOCK_THRESHOLD = 0.2; // 20% of min order × 10 heuristic for the dem
 
 export default function SellerInventoryPage() {
   const db = useDB();
-  const { sellerProfile } = useAuth();
+  const { sellerProfile } = useCurrentUser();
   const [edits, setEdits] = React.useState<Record<string, string>>({});
   if (!sellerProfile) return null;
 

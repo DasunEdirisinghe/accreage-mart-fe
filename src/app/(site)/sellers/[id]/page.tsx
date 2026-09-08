@@ -16,7 +16,7 @@ import {
 import { toast } from "sonner";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { getOrCreateThread } from "@/lib/services/engagement";
 import { cn, formatDate, initials } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export default function SellerProfilePage() {
   const { id } = useParams<{ id: string }>();
   const db = useDB();
   const router = useRouter();
-  const { user, buyerProfile, loginAs } = useAuth();
+  const { user, buyerProfile } = useCurrentUser();
 
   const seller = db.sellerProfiles.find((s) => s.id === id);
 
@@ -63,7 +63,7 @@ export default function SellerProfilePage() {
   const startChat = () => {
     if (!buyerProfile) {
       toast.info("Sign in as a buyer to chat with sellers.");
-      loginAs("buyer");
+      router.push("/login");
       return;
     }
     getOrCreateThread(db, buyerProfile.id, seller.id);

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Package, Tags, Wallet, Star, ArrowRight, Plus, BrainCircuit } from "lucide-react";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_VARIANT } from "@/lib/services/orders";
 import { formatLKR, formatDate } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
@@ -19,7 +19,7 @@ import {
 
 export default function SellerDashboard() {
   const db = useDB();
-  const { user, sellerProfile } = useAuth();
+  const { user, sellerProfile } = useCurrentUser();
   if (!sellerProfile) return null;
 
   const myListings = db.listings.filter((l) => l.sellerId === sellerProfile.id);

@@ -1,11 +1,11 @@
 "use client";
 
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { PageHeader } from "@/components/shared/page-header";
 import { ChatView } from "@/components/shared/chat-view";
 
 export default function BuyerChatPage() {
-  const { buyerProfile } = useAuth();
+  const { buyerProfile } = useCurrentUser();
   if (!buyerProfile) return null;
   return (
     <>

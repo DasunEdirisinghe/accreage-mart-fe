@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Gavel, Plus } from "lucide-react";
 
 import { useDB } from "@/hooks/use-db";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { formatLKR, formatDateTime } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -26,7 +26,7 @@ const STATUS_VARIANT = {
 
 export default function SellerAuctionsPage() {
   const db = useDB();
-  const { sellerProfile } = useAuth();
+  const { sellerProfile } = useCurrentUser();
   if (!sellerProfile) return null;
 
   const myAuctions = db.auctions.filter((a) => {

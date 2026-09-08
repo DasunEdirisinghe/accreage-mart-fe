@@ -7,7 +7,6 @@ import { Store, ShoppingBasket, Leaf } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,17 +21,16 @@ import {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { loginAs } = useAuth();
   const [role, setRole] = React.useState<"buyer" | "seller">("buyer");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    // WIRING LATER: POST /api/method/accreage.api.register_user
-    toast.success("Account created (demo)", {
-      description: `Signed in with the demo ${role} account. Real registration will be wired to the Frappe backend.`,
+    // Real registration (create account -> email a set-password link) lands in
+    // Stories 1.9 / 1.10.
+    toast.success("Almost there", {
+      description: "Check your email for a link to set your password and finish signing up.",
     });
-    loginAs(role);
-    router.push(role === "buyer" ? "/buyer" : "/seller");
+    router.push("/login");
   };
 
   return (

@@ -93,6 +93,42 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   redirect(sanitizeNext(next) ?? roleHome(info.role));
 }
 
+const DEMO_EMAIL: Record<PrimaryRole, string> = {
+  buyer: "buyer@demo.accreagemart.lk",
+  seller: "seller@demo.accreagemart.lk",
+  staff: "staff@demo.accreagemart.lk",
+  admin: "admin@demo.accreagemart.lk",
+};
+
+/** One-click sign-in for the demo cards on /login. Dev only. */
+export async function demoLogin(role: PrimaryRole): Promise<void> {
+  if (process.env.NEXT_PUBLIC_ENABLE_DEMO_LOGIN !== "true") {
+    redirect("/login");
+  }
+
+  const result = await frappeLogin(DEMO_EMAIL[role], "demo1234");
+  if (!result.ok || !result.sid) {
+    redirect("/login?error=demo");
+  }
+
+  const session = await getSession();
+  session.frappeSid = result.sid;
+
+  const res = await frappeFetch(AUTH_METHODS.GET_USER_INFO, { cache: "no-store" });
+  const info = ((await res.json()) as { message: UserInfo }).message;
+
+  session.user = {
+    id: info.user.id,
+    email: info.user.email,
+    fullName: info.user.fullName,
+    role: info.role,
+  };
+  session.isLoggedIn = true;
+  await session.save();
+
+  redirect(roleHome(info.role));
+}
+
 export async function logout(): Promise<void> {
   const session = await getSession();
   if (session.frappeSid) {
