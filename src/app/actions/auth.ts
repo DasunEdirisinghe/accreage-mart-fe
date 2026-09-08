@@ -96,6 +96,15 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
 
   const result = await frappeLogin(usr, pwd);
   if (!result.ok || !result.sid) {
+    // A pending account can't have a usable password yet — point the person at
+    // the activation link instead of a dead-end "wrong password".
+    if (await isPendingAccount(usr)) {
+      return {
+        error: "This account hasn't been activated yet — check your email for the setup link.",
+        canResendActivation: true,
+        inputs: { usr },
+      };
+    }
     return { error: GENERIC_CREDENTIALS_ERROR, inputs: { usr } };
   }
 
@@ -241,6 +250,33 @@ export async function requestPasswordReset(
   } catch {
     // Never leak a failure here — the response is deliberately generic.
     return { sent: true };
+  }
+}
+
+async function isPendingAccount(email: string): Promise<boolean> {
+  try {
+    const res = await frappeFetch(AUTH_METHODS.ACCOUNT_HINT, {
+      method: "POST",
+      body: { email },
+      auth: false,
+    });
+    return Boolean(((await res.json()) as { message: { invited?: boolean } }).message.invited);
+  } catch {
+    return false;
+  }
+}
+
+/** Whether a set-password link still works — used by the /set-password page on load. */
+export async function checkResetKey(key: string): Promise<boolean> {
+  if (!key) return false;
+  try {
+    const res = await frappeFetch(
+      `${AUTH_METHODS.CHECK_RESET_KEY}?key=${encodeURIComponent(key)}`,
+      { auth: false, cache: "no-store" },
+    );
+    return Boolean(((await res.json()) as { message: { valid: boolean } }).message.valid);
+  } catch {
+    return false;
   }
 }
 

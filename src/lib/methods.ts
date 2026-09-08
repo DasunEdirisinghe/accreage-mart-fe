@@ -17,6 +17,10 @@ export enum AUTH_METHODS {
   REGISTER_SELLER = "accreage_mart.api.auth.register_seller",
   /** Set the password behind an emailed key and activate the account. Guest. */
   SET_PASSWORD = "accreage_mart.api.auth.set_password",
+  /** Whether a set-password link is still usable. Guest. */
+  CHECK_RESET_KEY = "accreage_mart.api.auth.check_reset_key",
+  /** Whether an email belongs to a pending (invited) account. Guest. */
+  ACCOUNT_HINT = "accreage_mart.api.auth.account_hint",
   /** Send a password-reset link. Guest, rate-limited, generic response. */
   REQUEST_PASSWORD_RESET = "accreage_mart.api.auth.request_password_reset",
   /** Re-send the activation link for an account still in "invited". Guest. */

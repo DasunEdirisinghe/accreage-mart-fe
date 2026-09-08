@@ -78,9 +78,20 @@ describe("login action", () => {
 
   it("returns a generic message on bad credentials (no enumeration)", async () => {
     mockLogin.mockResolvedValue({ ok: false, message: "User disabled" });
+    mockUserInfo.mockResolvedValue({ json: async () => ({ message: {} }) } as Response); // account_hint: not invited
     const result = await login(EMPTY, form({ usr: "buyer@x.lk", pwd: "wrong" }));
     expect(result.error).toBe("Invalid email or password.");
     expect(result.inputs?.usr).toBe("buyer@x.lk");
+  });
+
+  it("offers to resend activation when a failed login is a pending account", async () => {
+    mockLogin.mockResolvedValue({ ok: false });
+    mockUserInfo.mockResolvedValue({
+      json: async () => ({ message: { invited: true } }),
+    } as Response); // account_hint
+    const result = await login(EMPTY, form({ usr: "pending@x.lk", pwd: "whatever" }));
+    expect(result.error).toMatch(/activated/i);
+    expect(result.canResendActivation).toBe(true);
   });
 
   it("signs an active buyer in and redirects to /buyer", async () => {

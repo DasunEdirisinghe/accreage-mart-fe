@@ -3,25 +3,19 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/actions/auth", () => ({ setPassword: vi.fn() }));
 
-const searchParams = new URLSearchParams();
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => searchParams,
-}));
+import { SetPasswordClient } from "@/components/shared/set-password-client";
 
-import SetPasswordPage from "@/app/(site)/set-password/page";
-
-describe("SetPasswordPage", () => {
-  it("shows the form when a key is present", () => {
-    searchParams.set("key", "abc123");
-    render(<SetPasswordPage />);
+describe("SetPasswordClient", () => {
+  it("shows the form for a valid key", () => {
+    render(<SetPasswordClient valid requestKey="abc123" />);
     expect(screen.getByLabelText(/new password/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
   });
 
-  it("asks for a fresh link when the key is missing", () => {
-    searchParams.delete("key");
-    render(<SetPasswordPage />);
+  it("shows the expired state for an invalid / used key", () => {
+    render(<SetPasswordClient valid={false} requestKey="" />);
     expect(screen.queryByLabelText(/new password/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/link expired/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /request a new link/i })).toHaveAttribute(
       "href",
       "/forgot-password",
