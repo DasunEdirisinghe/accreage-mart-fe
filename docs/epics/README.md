@@ -11,7 +11,7 @@ Related: [`../testing.md`](../testing.md) — the test stack and how to write/ru
 
 | #  | SRS module | Slug | Status |
 |----|-----------|------|--------|
-| 01 | Module 3 — User Role Management | [01-auth](01-auth/epic.md) | planning |
+| 01 | Module 3 — User Role Management | [01-auth](01-auth/epic.md) | in progress |
 
 > Update this table whenever an epic changes state. Status values:
 > `not started` · `planning` · `in progress` · `done`.
