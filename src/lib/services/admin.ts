@@ -1,32 +1,11 @@
 /**
- * Admin/staff service, user management, web content, announcements
- * (SRS 2.2, 2.3, 2.11). WIRING LATER: Frappe User + custom DocTypes.
+ * Admin service — web content and announcements (SRS 2.11).
+ *
+ * User / staff account management moved to the Frappe-wired server actions in
+ * src/app/actions/admin-accounts.ts (Story 1.14).
  */
 
 import { mutate, nextId } from "@/lib/store";
-import type { Role, UserStatus } from "@/lib/types";
-
-export function setUserStatus(userId: string, status: UserStatus): void {
-  mutate((db) => {
-    const u = db.users.find((x) => x.id === userId);
-    if (u) u.status = status;
-  });
-}
-
-export function addStaffUser(name: string, email: string, role: Extract<Role, "staff" | "admin">): void {
-  mutate((db) => {
-    db.users.push({
-      id: nextId("u"),
-      name,
-      email,
-      phone: "+94 70 000 0000",
-      role,
-      status: "active",
-      avatarColor: "bg-cyan-700",
-      createdAt: new Date().toISOString(),
-    });
-  });
-}
 
 export function saveContentPage(id: string | null, title: string, body: string, published: boolean): void {
   mutate((db) => {
