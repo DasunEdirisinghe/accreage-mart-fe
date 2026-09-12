@@ -31,8 +31,10 @@ export enum AUTH_METHODS {
   LIST_ACCOUNTS = "accreage_mart.api.auth.list_accounts",
   /** Activate / suspend / deactivate an account. Admin only. */
   SET_ACCOUNT_STATUS = "accreage_mart.api.auth.set_account_status",
-  /** Unverified buyer/seller profiles awaiting approval. Staff/Admin only. */
-  PENDING_ACCOUNTS = "accreage_mart.api.auth.pending_accounts",
-  /** Staff/Admin marks a buyer/seller profile as verified. Staff/Admin only. */
+  /** Every buyer/seller application (Pending/Approved/Rejected). Staff/Admin only. */
+  ACCOUNT_APPLICATIONS = "accreage_mart.api.auth.account_applications",
+  /** Approves an application, mints a set-password link, emails the applicant. Staff/Admin only. */
   VERIFY_ACCOUNT = "accreage_mart.api.auth.verify_account",
+  /** Rejects an application with a reason, emails the applicant. Staff/Admin only. */
+  REJECT_ACCOUNT = "accreage_mart.api.auth.reject_account",
 }
