@@ -2,13 +2,25 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
-  ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-      <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
-    </div>
-  )
-);
+/**
+ * Shared recipe for a table that scrolls within itself instead of growing the page:
+ * pass as `containerClassName` on `Table`, and pair with `STICKY_TABLE_HEADER_CLASS` on
+ * `TableHeader` so the header stays put while rows scroll under it. The offset approximates
+ * the chrome above a typical dashboard table (site header + page padding + page header) —
+ * not pixel-exact, but keeps the table's bottom edge near the viewport's before it takes
+ * over scrolling itself.
+ */
+export const SCROLLABLE_TABLE_CONTAINER_CLASS = "max-h-[calc(100vh-230px)]";
+export const STICKY_TABLE_HEADER_CLASS = "sticky top-0 z-10 bg-background";
+
+const Table = React.forwardRef<
+  HTMLTableElement,
+  React.HTMLAttributes<HTMLTableElement> & { containerClassName?: string }
+>(({ className, containerClassName, ...props }, ref) => (
+  <div className={cn("relative w-full overflow-auto", containerClassName)}>
+    <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
+  </div>
+));
 Table.displayName = "Table";
 
 const TableHeader = React.forwardRef<

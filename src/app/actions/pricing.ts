@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { frappeFetch } from "@/lib/frappe";
 import { frappeErrorMessage } from "@/lib/frappe-error";
 import { PRICING_METHODS } from "@/lib/methods";
-import type { PricingCategory } from "@/lib/types";
+import type { Commodity, CommodityOverview, PricingCategory } from "@/lib/types";
 
 export interface CommodityOption {
   name: string;
@@ -67,5 +67,28 @@ export async function deleteCategory(name: string): Promise<{ ok: boolean; error
     return { ok: true };
   } catch (error) {
     return { ok: false, error: frappeErrorMessage(error) };
+  }
+}
+
+export async function getCommoditiesOverview(): Promise<CommodityOverview[]> {
+  try {
+    const res = await frappeFetch(PRICING_METHODS.LIST_COMMODITIES_OVERVIEW, { cache: "no-store" });
+    return ((await res.json()) as { message: CommodityOverview[] }).message ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/** Null on any failure (including an unknown commodity) — the caller renders a 404. */
+export async function getCommodity(name: string): Promise<Commodity | null> {
+  try {
+    const res = await frappeFetch(PRICING_METHODS.GET_COMMODITY, {
+      method: "POST",
+      body: { name },
+      cache: "no-store",
+    });
+    return ((await res.json()) as { message: Commodity }).message ?? null;
+  } catch {
+    return null;
   }
 }

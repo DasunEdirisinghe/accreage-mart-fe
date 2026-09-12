@@ -232,3 +232,40 @@ export interface PricingCategory {
    * field), or null when this category has no priced commodity behind it. */
   commodity: string | null;
 }
+
+/** Row shape for /admin/commodities (Story 3.16, view-only). */
+export interface CommodityOverview {
+  name: string;
+  harti_category: string;
+  market: string;
+  is_active: boolean;
+  last_evaluated_on: string | null;
+  mape_1_7d: number | null;
+}
+
+/** One row of a Commodity's Price Forecast Day child table. */
+export interface ForecastDay {
+  forecast_date: string;
+  horizon_days_ahead: number;
+  predicted_price: number;
+  lower_bound: number;
+  upper_bound: number;
+}
+
+/** Full Commodity fields + its current forecast, for /admin/commodities/[id] (Story 3.16,
+ * view-only — no create/edit/delete anywhere on either route). */
+export interface Commodity {
+  name: string;
+  harti_category: string;
+  market: string;
+  unit: string;
+  is_active: boolean;
+  mape_1_7d: number | null;
+  mape_8_14d: number | null;
+  mape_15_30d: number | null;
+  sample_size_1_7d: number;
+  sample_size_8_14d: number;
+  sample_size_15_30d: number;
+  last_evaluated_on: string | null;
+  forecast_days: ForecastDay[];
+}

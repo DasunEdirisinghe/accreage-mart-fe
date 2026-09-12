@@ -48,4 +48,8 @@ export enum PRICING_METHODS {
   DELETE_CATEGORY = "accreage_mart.api.pricing.delete_category",
   /** Read-only commodity list for the Category form's picker. Staff/Admin only. */
   LIST_COMMODITIES = "accreage_mart.api.pricing.list_commodities",
+  /** Richer commodity list for /admin/commodities (view-only). Staff/Admin only. */
+  LIST_COMMODITIES_OVERVIEW = "accreage_mart.api.pricing.list_commodities_overview",
+  /** One commodity's full fields + its forecast days, for /admin/commodities/[id]. Staff/Admin only. */
+  GET_COMMODITY = "accreage_mart.api.pricing.get_commodity",
 }
