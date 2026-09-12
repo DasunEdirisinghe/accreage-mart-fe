@@ -12,6 +12,7 @@ import {
   FileText,
   ShieldCheck,
   LineChart,
+  Tags,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 
@@ -26,6 +27,7 @@ const NAV = [
   { href: "/admin/reviews", label: "Feedback moderation", icon: Star },
   { href: "/admin/content", label: "Web content", icon: FileText },
   { href: "/admin/staff", label: "Staff management", icon: ShieldCheck },
+  { href: "/admin/categories", label: "Categories", icon: Tags },
   { href: "/admin/reports", label: "Reports", icon: LineChart },
 ];
 

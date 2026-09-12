@@ -217,3 +217,18 @@ export interface Announcement {
   body: string;
   createdAt: string;
 }
+
+/** Marketplace-facing pricing taxonomy (Epic 03). Decouples the listing category a seller
+ * picks from the raw priced-commodity list — many categories can share one commodity's
+ * forecast, and a category can have none (Tools/Fertilizer/Other). Mirrors the backend
+ * Category DocType 1:1; `name` is the Frappe docname (a random hash, not the title). */
+export type CategoryArea = "Fruits" | "Vegetables" | "Fertilizer" | "Tools" | "Rice" | "Other";
+
+export interface PricingCategory {
+  name: string;
+  title: string;
+  area: CategoryArea;
+  /** The linked Commodity's name (itself the display value — Commodity autonames on this
+   * field), or null when this category has no priced commodity behind it. */
+  commodity: string | null;
+}
