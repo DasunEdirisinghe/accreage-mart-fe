@@ -91,7 +91,7 @@ export default function ListingApprovalsPage() {
     <>
       <PageHeader
         title="Listing approvals"
-        description="Review listings for quality and compliance before they go live (SRS 2.1 REQ-4/5)."
+        description="Review listings for quality and compliance before they go live."
       />
       <Tabs defaultValue="pending">
         <TabsList>

@@ -68,7 +68,7 @@ export default function PaymentReviewPage() {
     <>
       <PageHeader
         title="Payment proof review"
-        description="Manual payment verification for phase 1, approve valid bank slips to release orders (SRS 2.5 REQ-6)."
+        description="Manual payment verification for phase 1, approve valid bank slips to release orders."
       />
       <Tabs defaultValue="queue">
         <TabsList>

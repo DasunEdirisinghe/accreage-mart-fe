@@ -50,7 +50,7 @@ export default function WebContentPage() {
     <>
       <PageHeader
         title="Web content management"
-        description="Manage marketplace guidelines, policies and announcements (SRS 2.11)."
+        description="Manage marketplace guidelines, policies and announcements."
       />
 
       <Tabs defaultValue="pages">

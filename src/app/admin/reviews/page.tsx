@@ -20,7 +20,7 @@ export default function FeedbackModerationPage() {
     <>
       <PageHeader
         title="Feedback moderation"
-        description="AI sentiment analysis flags potentially abusive or unfair reviews for staff action (SRS 2.8)."
+        description="AI sentiment analysis flags potentially abusive or unfair reviews for staff action."
       />
       {db.reviews.length === 0 ? (
         <EmptyState icon={Star} title="No reviews yet" />

@@ -102,7 +102,7 @@ export default function NewListingPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Create listing</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          All listings are reviewed by staff before publication (SRS 2.1, Pending Approval workflow).
+          All listings are reviewed by staff before publication.
         </p>
       </div>
 
@@ -277,7 +277,7 @@ export default function NewListingPage() {
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Based on historical price trends and the diesel-price regressor. You stay in
-                    full control of the final price (SRS REQ 2.1-8).
+                    full control of the final price.
                   </p>
                   {sellingType === "direct" ? (
                     <Button type="button" size="sm" variant="outline" className="w-full" onClick={() => setPrice(String(Math.round((aiRange.min + aiRange.max) / 2)))}>

@@ -40,7 +40,7 @@ export default function SellerReportsPage() {
     <>
       <PageHeader
         title="Reports & AI insights"
-        description="Sales performance and Prophet-powered market forecasts (SRS 2.6, 2.7)."
+        description="Sales performance and Prophet-powered market forecasts."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -103,7 +103,7 @@ export default function SellerReportsPage() {
       <Card className="mt-6">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Sales & revenue report</CardTitle>
-          <CardDescription>Generated from your transaction log (SRS 2.7 REQ-1).</CardDescription>
+          <CardDescription>Generated from your transaction log.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>

@@ -33,7 +33,7 @@ export default function SellerInventoryPage() {
     <>
       <PageHeader
         title="Inventory"
-        description="Real-time stock tracking with low-stock alerts (SRS REQ 2.1-9)."
+        description="Real-time stock tracking with low-stock alerts."
       />
       {mine.length === 0 ? (
         <EmptyState icon={Boxes} title="No inventory" description="Create listings to start tracking stock." />

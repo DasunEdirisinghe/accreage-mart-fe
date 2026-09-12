@@ -9,7 +9,7 @@ export default async function AccountApprovalsPage() {
     <>
       <PageHeader
         title="Account approvals"
-        description="Verify new buyer and seller businesses. Verifying a seller lifts their pending gate (SRS 2.2)."
+        description="Verify new buyer and seller businesses. Verifying a seller lifts their pending gate."
       />
       <AccountApplicationsTable rows={rows} />
     </>

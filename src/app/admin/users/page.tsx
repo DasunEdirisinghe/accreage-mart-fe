@@ -9,7 +9,7 @@ export default async function UserManagementPage() {
     <>
       <PageHeader
         title="User management"
-        description="View, activate, suspend or deactivate buyer and seller accounts (SRS 2.2 REQ-7/8)."
+        description="View, activate, suspend or deactivate buyer and seller accounts."
       />
       <AccountManageTable
         rows={rows}

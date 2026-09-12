@@ -32,7 +32,7 @@ export default function AuctionApprovalsPage() {
     <>
       <PageHeader
         title="Auction approvals"
-        description="Only staff-approved auctions are scheduled and become visible to buyers (SRS 2.4 REQ-2/3/4)."
+        description="Only staff-approved auctions are scheduled and become visible to buyers."
       />
 
       {pending.length === 0 ? (

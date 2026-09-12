@@ -24,7 +24,7 @@ export default function AdminInquiriesPage() {
     <>
       <PageHeader
         title="Inquiry management"
-        description="Inquiries are auto-routed by category. Respond and resolve (SRS 2.9)."
+        description="Inquiries are auto-routed by category. Respond and resolve."
       />
       {db.inquiries.length === 0 ? (
         <EmptyState icon={HelpCircle} title="No inquiries" />

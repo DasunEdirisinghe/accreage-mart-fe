@@ -10,7 +10,7 @@ export default async function StaffManagementPage() {
     <>
       <PageHeader
         title="Staff management"
-        description="Administrators create staff and admin accounts and manage their access (SRS 2.3 REQ-7)."
+        description="Administrators create staff and admin accounts and manage their access."
       >
         <AddStaffDialog />
       </PageHeader>

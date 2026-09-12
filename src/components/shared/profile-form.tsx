@@ -119,7 +119,7 @@ export function ProfileForm() {
             ))}
             <Separator />
             <p className="text-xs text-muted-foreground">
-              Subscription-based notifications per SRS Notification Management module.
+              You can subscribe or unsubscribe from each notification type at any time.
             </p>
           </CardContent>
         </Card>
