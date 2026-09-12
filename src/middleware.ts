@@ -6,7 +6,7 @@ import { sessionOptions, type SessionData } from "@/lib/session";
 
 /**
  * Central route guard for the authenticated areas. All decision logic lives in
- * `src/lib/route-guard.ts` (pure, tested); this only reads the session cookie and
+ * `src/lib/route-guard.ts`; this only reads the session cookie and
  * turns the outcome into a response.
  *
  * The session is only ever persisted for an *active* account (see the login
