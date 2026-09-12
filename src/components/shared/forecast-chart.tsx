@@ -11,21 +11,45 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import type { CategoryForecast } from "@/lib/types";
+import type { ForecastPoint } from "@/lib/types";
 
 /**
  * Prophet-style forecast chart: actual history, yhat forecast line and the
  * 90% prediction interval band. Mirrors Figure 3.12 of the interim report.
+ *
+ * Only needs `points` — accepts any object with that shape (e.g. `CategoryForecast`,
+ * or a plain `{ points }` built from a different backend payload) rather than requiring
+ * the full mock `CategoryForecast` type, so it stays reusable outside that mock layer.
  */
-export function ForecastChart({ forecast, height = 280 }: { forecast: CategoryForecast; height?: number }) {
+export function ForecastChart({
+  forecast,
+  height = 280,
+  highlightDate,
+}: {
+  forecast: { points: ForecastPoint[] };
+  height?: number;
+  /**
+   * Puts the "today" reference line at the point whose `ds` matches this exact date,
+   * instead of the default heuristic (the boundary between actual history and forecast —
+   * meaningless for a pure forward-looking series with no `actual` field at all).
+   */
+  highlightDate?: string;
+}) {
   const data = forecast.points.map((p) => ({
     ds: p.ds.slice(5), // MM-DD
     actual: p.actual,
     yhat: p.yhat,
     band: [p.yhatLower, p.yhatUpper] as [number, number],
   }));
-  const todayIdx = forecast.points.findIndex((p) => p.actual === undefined);
-  const todayLabel = todayIdx > 0 ? data[todayIdx - 1].ds : undefined;
+
+  let todayLabel: string | undefined;
+  if (highlightDate) {
+    const idx = forecast.points.findIndex((p) => p.ds === highlightDate);
+    todayLabel = idx >= 0 ? data[idx].ds : undefined;
+  } else {
+    const todayIdx = forecast.points.findIndex((p) => p.actual === undefined);
+    todayLabel = todayIdx > 0 ? data[todayIdx - 1].ds : undefined;
+  }
 
   return (
     <ResponsiveContainer width="100%" height={height}>

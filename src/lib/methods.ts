@@ -38,3 +38,18 @@ export enum AUTH_METHODS {
   /** Rejects an application with a reason, emails the applicant. Staff/Admin only. */
   REJECT_ACCOUNT = "accreage_mart.api.auth.reject_account",
 }
+
+export enum PRICING_METHODS {
+  /** All Category rows, for /admin/categories. Staff/Admin only. */
+  LIST_CATEGORIES = "accreage_mart.api.pricing.list_categories",
+  /** Create (no name) or update (name given) a Category. Staff/Admin only. */
+  UPSERT_CATEGORY = "accreage_mart.api.pricing.upsert_category",
+  /** Removes a Category — allowed even when linked to a commodity. Staff/Admin only. */
+  DELETE_CATEGORY = "accreage_mart.api.pricing.delete_category",
+  /** Read-only commodity list for the Category form's picker. Staff/Admin only. */
+  LIST_COMMODITIES = "accreage_mart.api.pricing.list_commodities",
+  /** Richer commodity list for /admin/commodities (view-only). Staff/Admin only. */
+  LIST_COMMODITIES_OVERVIEW = "accreage_mart.api.pricing.list_commodities_overview",
+  /** One commodity's full fields + its forecast days, for /admin/commodities/[id]. Staff/Admin only. */
+  GET_COMMODITY = "accreage_mart.api.pricing.get_commodity",
+}

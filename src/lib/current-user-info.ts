@@ -42,6 +42,10 @@ export const getCurrentUser = cache(async (): Promise<CurrentUserInfo | null> =>
 
     // Keep the session's routing flags in step with the backend (e.g. a seller
     // that staff has just verified) so middleware sees the change next request.
+
+    // whenever the seller-pending status has actually changed, 
+    // update the session's role/pending fields and save
+    // otherwise skip the write (avoids an unnecessary session save on every request).
     const pending = info.role === "seller" && !info.verified;
     if (session.user && (session.user.sellerPending ?? false) !== pending) {
       session.user.sellerPending = pending;
