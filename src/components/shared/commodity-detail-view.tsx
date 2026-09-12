@@ -60,17 +60,23 @@ export function CommodityDetailView({ commodity, today }: { commodity: Commodity
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-          <Field label="Category" value={commodity.harti_category} />
-          <Field label="Market" value={commodity.market} />
-          <Field label="Unit" value={commodity.unit || "—"} />
-          <Field
-            label="Last evaluated"
-            value={commodity.last_evaluated_on ? formatDate(commodity.last_evaluated_on) : "Not yet evaluated"}
-          />
-          <Field label="MAPE 1–7d" value={fmtMape(commodity.mape_1_7d)} sub={`n=${commodity.sample_size_1_7d}`} />
-          <Field label="MAPE 8–14d" value={fmtMape(commodity.mape_8_14d)} sub={`n=${commodity.sample_size_8_14d}`} />
-          <Field label="MAPE 15–30d" value={fmtMape(commodity.mape_15_30d)} sub={`n=${commodity.sample_size_15_30d}`} />
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+            <Field label="Category" value={commodity.harti_category} />
+            <Field label="Market" value={commodity.market} />
+            <Field label="Unit" value={commodity.unit || "—"} />
+            <Field
+              label="Last evaluated"
+              value={commodity.last_evaluated_on ? formatDate(commodity.last_evaluated_on) : "Not yet evaluated"}
+            />
+            <Field label="MAPE 1–7d" value={fmtMape(commodity.mape_1_7d)} sub={`n=${commodity.sample_size_1_7d}`} />
+            <Field label="MAPE 8–14d" value={fmtMape(commodity.mape_8_14d)} sub={`n=${commodity.sample_size_8_14d}`} />
+            <Field label="MAPE 15–30d" value={fmtMape(commodity.mape_15_30d)} sub={`n=${commodity.sample_size_15_30d}`} />
+          </div>
+          <p className="mt-4 border-t pt-3 text-xs text-muted-foreground">
+            MAPE (Mean Absolute Percentage Error) is the average forecast error: lower is better.
+            n is the sample size behind each score, i.e. how many forecast-vs-actual comparisons it's based on.
+          </p>
         </CardContent>
       </Card>
 

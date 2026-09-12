@@ -36,6 +36,11 @@ describe("CommodityDetailView", () => {
     expect(screen.getByText("9.10%")).toBeInTheDocument();
   });
 
+  it("shows a small MAPE definition at the end of the general info section", () => {
+    render(<CommodityDetailView commodity={baseCommodity} today="2026-09-12" />);
+    expect(screen.getByText(/mean absolute percentage error/i)).toBeInTheDocument();
+  });
+
   it("renders the forecast table with a row per forecast day", () => {
     render(<CommodityDetailView commodity={baseCommodity} today="2026-09-12" />);
     expect(screen.getAllByText(/^Rs\./).length).toBeGreaterThanOrEqual(6); // 2 rows x 3 price cols
