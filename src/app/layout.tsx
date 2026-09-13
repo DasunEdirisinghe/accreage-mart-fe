@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+// @ts-ignore
 import "./globals.css";
 import { CurrentUserProvider } from "@/components/providers/current-user-provider";
 import { getCurrentUser } from "@/lib/current-user-info";
