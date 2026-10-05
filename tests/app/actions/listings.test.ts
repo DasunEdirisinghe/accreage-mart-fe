@@ -9,12 +9,21 @@ vi.mock("next/navigation", () => ({
 }));
 
 import {
+  archiveListing,
   createListing,
   discardListingImage,
+  duplicateListing,
+  getListingActionInfo,
   getListingCategories,
+  getListingHistory,
+  getMyListings,
   getOwnListing,
   getPriceSuggestion,
+  hideListing,
+  resubmitListing,
+  unhideListing,
   updateListing,
+  updateStock,
   uploadListingImage,
 } from "@/app/actions/listings";
 import { frappeFetch } from "@/lib/frappe";
@@ -252,5 +261,145 @@ describe("updateListing", () => {
     const state = await updateListing("LST-1", {}, form({ ...directFields, title: "" }));
     expect(state.errors?.title).toBeTruthy();
     expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("getMyListings", () => {
+  it("asks for the seller's listings with the filters and returns the response", async () => {
+    mockFetch.mockResolvedValueOnce(reply({ items: [{ name: "LST-1" }], counts: {}, total: 1, page: 2, page_size: 12, has_more: false }));
+    const result = await getMyListings({ tab: "live", search: "carrot", selling_type: "Direct", exclude_archived: true, page: 2 });
+    expect(result.items).toHaveLength(1);
+    const [method, init] = mockFetch.mock.calls[0];
+    expect(method).toBe(LISTING_METHODS.LIST_MINE);
+    expect((init as { body: unknown }).body).toEqual({
+      tab: "live",
+      search: "carrot",
+      selling_type: "Direct",
+      exclude_archived: 1,
+      page: 2,
+      page_size: undefined,
+    });
+  });
+
+  it("defaults to page 1 with nothing excluded", async () => {
+    mockFetch.mockResolvedValueOnce(reply({ items: [] }));
+    await getMyListings();
+    expect((mockFetch.mock.calls[0][1] as { body: Record<string, unknown> }).body).toMatchObject({ page: 1, exclude_archived: 0 });
+  });
+
+  it("returns an empty, well-formed result on failure", async () => {
+    mockFetch.mockRejectedValueOnce(new Error("boom"));
+    const result = await getMyListings();
+    expect(result.items).toEqual([]);
+    expect(result.counts).toEqual({ pending: 0, live: 0, hidden: 0, rejected: 0, suspended: 0, archived: 0 });
+  });
+});
+
+describe("getListingActionInfo and getListingHistory", () => {
+  it("return the backend's answer, or null / empty on failure", async () => {
+    mockFetch.mockResolvedValueOnce(reply({ warning: "w", hide: { blocked_reason: null } }));
+    expect((await getListingActionInfo("LST-1"))?.warning).toBe("w");
+    expect(mockFetch.mock.calls[0][0]).toBe(LISTING_METHODS.GET_ACTION_INFO);
+
+    mockFetch.mockRejectedValueOnce(new Error("boom"));
+    expect(await getListingActionInfo("LST-1")).toBeNull();
+
+    mockFetch.mockResolvedValueOnce(reply([{ action: "Rejected", by: "staff" }]));
+    expect(await getListingHistory("LST-1")).toHaveLength(1);
+    expect(mockFetch.mock.calls[2][0]).toBe(LISTING_METHODS.GET_HISTORY);
+
+    mockFetch.mockRejectedValueOnce(new Error("boom"));
+    expect(await getListingHistory("LST-1")).toEqual([]);
+  });
+});
+
+describe("seller actions", () => {
+  const bodyOf = (index = 0) => (mockFetch.mock.calls[index][1] as { body: Record<string, unknown> }).body;
+
+  it("hide and archive send the acknowledgement as 1 / 0", async () => {
+    mockFetch.mockResolvedValue(reply({ name: "LST-1" }));
+    expect(await hideListing("LST-1", true)).toEqual({ ok: true, name: "LST-1" });
+    expect(mockFetch.mock.calls[0][0]).toBe(LISTING_METHODS.HIDE);
+    expect(bodyOf(0)).toEqual({ name: "LST-1", acknowledged: 1 });
+
+    await archiveListing("LST-1", false);
+    expect(mockFetch.mock.calls[1][0]).toBe(LISTING_METHODS.ARCHIVE);
+    expect(bodyOf(1)).toEqual({ name: "LST-1", acknowledged: 0 });
+  });
+
+  it("unhide sends just the name", async () => {
+    mockFetch.mockResolvedValueOnce(reply({ name: "LST-1" }));
+    await unhideListing("LST-1");
+    expect(mockFetch.mock.calls[0][0]).toBe(LISTING_METHODS.UNHIDE);
+    expect(bodyOf()).toEqual({ name: "LST-1" });
+  });
+
+  it("every successful action refreshes the listing caches", async () => {
+    mockFetch.mockResolvedValue(reply({ name: "LST-1" }));
+    await hideListing("LST-1", true);
+    expect(mockRevalidate).toHaveBeenCalledWith(LISTING_TAGS.MINE);
+    expect(mockRevalidate).toHaveBeenCalledWith(LISTING_TAGS.PUBLIC);
+  });
+
+  it("a failed action returns the backend's message and refreshes nothing", async () => {
+    mockFetch.mockRejectedValueOnce(
+      new Error('Frappe request failed: 417 {"_server_messages":"[\\"{\\\\\\"message\\\\\\": \\\\\\"This auction has started and cannot be stopped from here. Please contact staff.\\\\\\"}\\"]"}'),
+    );
+    expect(await archiveListing("LST-1", true)).toEqual({
+      ok: false,
+      error: "This auction has started and cannot be stopped from here. Please contact staff.",
+    });
+    expect(mockRevalidate).not.toHaveBeenCalled();
+  });
+
+  it("resubmit trims the note and sends none when it is blank", async () => {
+    mockFetch.mockResolvedValue(reply({ name: "LST-1" }));
+    await resubmitListing("LST-1", "  Replaced the photos.  ");
+    expect(mockFetch.mock.calls[0][0]).toBe(LISTING_METHODS.RESUBMIT);
+    expect(bodyOf(0)).toEqual({ name: "LST-1", note: "Replaced the photos." });
+    await resubmitListing("LST-1", "   ");
+    expect(bodyOf(1).note).toBeUndefined();
+  });
+
+  it("update stock validates the quantity before calling the backend", async () => {
+    expect(await updateStock("LST-1", -1)).toMatchObject({ ok: false });
+    expect(await updateStock("LST-1", Number.NaN)).toMatchObject({ ok: false });
+    expect(mockFetch).not.toHaveBeenCalled();
+
+    mockFetch.mockResolvedValueOnce(reply({ name: "LST-1" }));
+    expect(await updateStock("LST-1", 0)).toMatchObject({ ok: true });
+    expect(mockFetch.mock.calls[0][0]).toBe(LISTING_METHODS.UPDATE_STOCK);
+    expect(bodyOf()).toEqual({ name: "LST-1", quantity_available: 0 });
+  });
+
+  it("duplicate converts auction times to the backend format", async () => {
+    mockFetch.mockResolvedValueOnce(reply({ name: "LST-9" }));
+    const result = await duplicateListing("LST-1", {
+      acknowledged: true,
+      minBid: 300,
+      startTime: "2026-10-07T10:30",
+      endTime: "2026-10-07T22:30",
+    });
+    expect(result).toEqual({ ok: true, name: "LST-9" });
+    expect(mockFetch.mock.calls[0][0]).toBe(LISTING_METHODS.DUPLICATE);
+    expect(bodyOf()).toEqual({
+      name: "LST-1",
+      auction_terms_acknowledged: 1,
+      min_bid: 300,
+      start_time: "2026-10-07 10:30:00",
+      end_time: "2026-10-07 22:30:00",
+    });
+  });
+
+  it("duplicate of a direct listing sends no auction fields", async () => {
+    mockFetch.mockResolvedValueOnce(reply({ name: "LST-9" }));
+    await duplicateListing("LST-1");
+    expect(bodyOf()).toEqual({
+      name: "LST-1",
+      auction_terms_acknowledged: 0,
+      min_bid: undefined,
+      start_time: undefined,
+      end_time: undefined,
+    });
   });
 });

@@ -1,124 +1,35 @@
-"use client";
+import { getMyListings } from "@/app/actions/listings";
+import { MyListingsView } from "@/components/pages/listings/my-listings-view";
+import type { MyListingsTab } from "@/types/listing.type";
 
-import Link from "next/link";
-import { Plus, Trash2, Tags, Eye } from "lucide-react";
-import { toast } from "sonner";
+const TABS: MyListingsTab[] = ["pending", "live", "hidden", "rejected", "suspended", "archived"];
 
-import { useDB } from "@/hooks/use-db";
-import { useCurrentUser } from "@/components/providers/current-user-provider";
-import { deleteListing } from "@/lib/services/listings";
-import { formatLKR, formatDate } from "@/lib/utils";
-import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+interface SearchParams {
+  tab?: string;
+  q?: string;
+  page?: string;
+  submitted?: string;
+  updated?: string;
+}
 
-export default function SellerListingsPage() {
-  const db = useDB();
-  const { sellerProfile } = useCurrentUser();
-  if (!sellerProfile) return null;
+export default async function SellerListingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
+  const tab = TABS.find((candidate) => candidate === params.tab);
+  const search = params.q?.trim() || undefined;
+  const page = Math.max(1, Number(params.page) || 1);
 
-  const mine = db.listings.filter((l) => l.sellerId === sellerProfile.id);
+  const data = await getMyListings({ tab, search, page });
 
   return (
-    <>
-      <PageHeader
-        title="My listings"
-        description="New listings are reviewed by platform staff before going live (compliance & quality)."
-      >
-        <Button asChild>
-          <Link href="/seller/listings/new">
-            <Plus className="h-4 w-4" /> New listing
-          </Link>
-        </Button>
-      </PageHeader>
-
-      {mine.length === 0 ? (
-        <EmptyState icon={Tags} title="No listings yet" description="Create your first product or service listing.">
-          <Button asChild>
-            <Link href="/seller/listings/new">Create listing</Link>
-          </Button>
-        </EmptyState>
-      ) : (
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="pl-4">Listing</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="pr-4 text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mine.map((l) => (
-                  <TableRow key={l.id}>
-                    <TableCell className="max-w-64 pl-4">
-                      <span className="block truncate font-medium">
-                        {l.image} {l.title}
-                      </span>
-                      {l.status === "rejected" && l.rejectionReason && (
-                        <span className="mt-0.5 block truncate text-xs text-destructive">
-                          {l.rejectionReason}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={l.sellingType === "auction" ? "accent" : "secondary"}>
-                        {l.sellingType}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {l.sellingType === "direct" ? `${formatLKR(l.pricePerUnit)}/${l.unit}` : "-"}
-                    </TableCell>
-                    <TableCell>
-                      {l.quantityAvailable.toLocaleString()} {l.unit}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          l.status === "approved" ? "success" : l.status === "pending" ? "warning" : "destructive"
-                        }
-                      >
-                        {l.status === "pending" ? "pending approval" : l.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{formatDate(l.createdAt)}</TableCell>
-                    <TableCell className="pr-4">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" asChild title="View public page">
-                          <Link href={`/marketplace/${l.id}`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Delete listing"
-                          onClick={() => {
-                            deleteListing(l.id);
-                            toast.info("Listing deleted");
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
-    </>
+    <MyListingsView
+      data={data}
+      tab={tab}
+      search={search}
+      flash={{ submitted: params.submitted, updated: params.updated }}
+    />
   );
 }

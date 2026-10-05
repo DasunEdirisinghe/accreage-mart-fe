@@ -67,6 +67,24 @@ export enum LISTING_METHODS {
   UPLOAD_IMAGE = "accreage_mart.api.listing_images.upload_listing_image",
   /** Delete an upload that is not on any listing. Owner of the upload. */
   DISCARD_IMAGE = "accreage_mart.api.listing_images.discard_listing_image",
+  /** The caller's own listings with per-tab counts. Verified seller. */
+  LIST_MINE = "accreage_mart.api.marketplace.list_my_listings",
+  /** Staff decisions and own resubmissions on one of the caller's listings. Owner. */
+  GET_HISTORY = "accreage_mart.api.marketplace.get_listing_history",
+  /** Whether hide / archive / unhide are possible now, plus the warning text. Owner. */
+  GET_ACTION_INFO = "accreage_mart.api.listings.get_listing_action_info",
+  /** Published -> Hidden (needs acknowledgement). Owner. */
+  HIDE = "accreage_mart.api.listings.hide_listing",
+  /** Hidden -> Published. Owner. */
+  UNHIDE = "accreage_mart.api.listings.unhide_listing",
+  /** The seller's "delete": archives the listing (needs acknowledgement). Owner. */
+  ARCHIVE = "accreage_mart.api.listings.archive_listing",
+  /** Rejected -> Pending Approval, with a note for staff. Owner. */
+  RESUBMIT = "accreage_mart.api.listings.resubmit_listing",
+  /** A new Pending listing copied from an archived one. Owner. */
+  DUPLICATE = "accreage_mart.api.listings.duplicate_listing",
+  /** Change a Direct listing's stock (low-stock email when it first drops below the level). Owner. */
+  UPDATE_STOCK = "accreage_mart.api.listings.update_stock",
   /** Resolve a Category to its price suggestion (tiers + forecast days). Authenticated. */
   GET_PRICE_SUGGESTION = "accreage_mart.api.pricing.get_price_suggestion",
 }

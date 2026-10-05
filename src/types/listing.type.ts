@@ -105,3 +105,74 @@ export interface GetListingResponse {
   message: string | null;
   listing: OwnListingDetail | null;
 }
+
+export type StockState = "in_stock" | "low_stock" | "out_of_stock";
+
+/** One row of api.marketplace.list_my_listings. */
+export interface MyListingCard {
+  name: string;
+  title: string;
+  status: ListingStatusLabel;
+  selling_type: SellingType;
+  category: string;
+  category_title: string | null;
+  unit: string;
+  price_per_unit: number | null;
+  quantity_available: number;
+  low_stock_level: number;
+  /** null for auctions (the lot is fixed) */
+  stock_state: StockState | null;
+  district: string;
+  cover_image: string | null;
+  status_reason: string | null;
+  resubmission_note: string | null;
+  created: string;
+  modified: string;
+  auction: {
+    min_bid: number;
+    start_time: string;
+    end_time: string;
+    duration_hours: number;
+    /** pending | rejected | scheduled | live | ended | hidden | suspended | archived */
+    status: string;
+    bidding_enabled: boolean;
+  } | null;
+}
+
+export type MyListingsTab = "pending" | "live" | "hidden" | "rejected" | "suspended" | "archived";
+
+export interface MyListingsResponse {
+  items: MyListingCard[];
+  counts: Record<MyListingsTab, number>;
+  total: number;
+  page: number;
+  page_size: number;
+  has_more: boolean;
+}
+
+export interface MyListingsQuery {
+  tab?: MyListingsTab;
+  search?: string;
+  selling_type?: SellingType;
+  exclude_archived?: boolean;
+  page?: number;
+  page_size?: number;
+}
+
+export interface ListingActionInfo {
+  hide: { blocked_reason: string | null };
+  archive: { blocked_reason: string | null };
+  unhide: { blocked_reason: string | null };
+  warning: string;
+  active_order_count: number;
+}
+
+export interface ListingHistoryEntry {
+  action: "Approved" | "Rejected" | "Suspended" | "Resubmitted";
+  reason: string | null;
+  seller_note: string | null;
+  reviewed_on: string;
+  by: "staff" | "you";
+}
+
+export type ActionResult = { ok: true; name?: string } | { ok: false; error: string };
