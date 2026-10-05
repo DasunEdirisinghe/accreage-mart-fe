@@ -101,3 +101,10 @@ export enum REVIEW_METHODS {
   /** Suspend a published or hidden listing (reason required). Staff/Admin. */
   SUSPEND = "accreage_mart.api.listing_review.suspend_listing",
 }
+
+export enum MARKETPLACE_METHODS {
+  /** Published listings of active sellers: filters, search, sort, paging. Guest. */
+  LIST = "accreage_mart.api.marketplace.list_marketplace",
+  /** A seller's public card by opaque public id (never an email). Guest. */
+  PUBLIC_SELLER = "accreage_mart.api.marketplace.get_public_seller",
+}
