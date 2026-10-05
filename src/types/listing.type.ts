@@ -90,6 +90,7 @@ export interface OwnListingDetail {
     min_bid: number;
     start_time: string;
     end_time: string;
+    duration_hours?: number;
     status: string;
     bidding_enabled: boolean;
   } | null;

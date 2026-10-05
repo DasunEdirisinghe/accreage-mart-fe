@@ -88,3 +88,16 @@ export enum LISTING_METHODS {
   /** Resolve a Category to its price suggestion (tiers + forecast days). Authenticated. */
   GET_PRICE_SUGGESTION = "accreage_mart.api.pricing.get_price_suggestion",
 }
+
+export enum REVIEW_METHODS {
+  /** The staff queue: listings of one status, both types together. Staff/Admin. */
+  LIST = "accreage_mart.api.listing_review.list_listings_for_review",
+  /** One listing as buyers see it plus review context and which actions are possible. Staff/Admin. */
+  GET = "accreage_mart.api.listing_review.get_listing_for_review",
+  /** Publish a pending listing, or reinstate a suspended one. Staff/Admin. */
+  APPROVE = "accreage_mart.api.listing_review.approve_listing",
+  /** Reject a pending listing (reason required). Staff/Admin. */
+  REJECT = "accreage_mart.api.listing_review.reject_listing",
+  /** Suspend a published or hidden listing (reason required). Staff/Admin. */
+  SUSPEND = "accreage_mart.api.listing_review.suspend_listing",
+}
