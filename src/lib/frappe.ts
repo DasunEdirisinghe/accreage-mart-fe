@@ -32,7 +32,8 @@ export class FrappeSessionError extends Error {
 }
 
 type FrappeFetchInit = Omit<RequestInit, "body"> & {
-  body?: Record<string, unknown>;
+  /** A plain object is sent as JSON; a FormData is sent as multipart (file uploads). */
+  body?: Record<string, unknown> | FormData;
   next?: { tags?: string[]; revalidate?: number | false };
   /** Attach the session `sid`. Default true. Set false for guest calls (login, register). */
   auth?: boolean;
@@ -57,15 +58,18 @@ export async function frappeFetch(
     if (session.frappeSid) cookieHeader = `sid=${session.frappeSid}`;
   }
 
+  const isMultipart = typeof FormData !== "undefined" && body instanceof FormData;
+
   const res = await fetch(frappeUrl(pathOrMethod), {
     ...rest,
     headers: {
-      "Content-Type": "application/json",
+      // For multipart, fetch must set the Content-Type itself (it adds the boundary).
+      ...(isMultipart ? {} : { "Content-Type": "application/json" }),
       Accept: "application/json",
       ...(cookieHeader ? { Cookie: cookieHeader } : {}),
       ...headers,
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined ? undefined : isMultipart ? (body as FormData) : JSON.stringify(body),
     next,
   });
 

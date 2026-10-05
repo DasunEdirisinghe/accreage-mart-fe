@@ -52,6 +52,26 @@ describe("frappeFetch", () => {
     expect(init.body).toBe(JSON.stringify({ usr: "a", pwd: "b" }));
   });
 
+  it("sends a FormData body as multipart, leaving the Content-Type for fetch to set", async () => {
+    const body = new FormData();
+    body.append("file", new File(["x"], "a.png", { type: "image/png" }));
+
+    await frappeFetch("accreage_mart.api.listing_images.upload_listing_image", { method: "POST", body });
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(init.body).toBe(body);
+    expect((init.headers as Record<string, string>)["Content-Type"]).toBeUndefined();
+    expect((init.headers as Record<string, string>).Cookie).toBe("sid=sid-abc");
+  });
+
+  it("still sends plain objects as JSON", async () => {
+    await frappeFetch("x", { method: "POST", body: { a: 1 } });
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(init.body).toBe(JSON.stringify({ a: 1 }));
+    expect((init.headers as Record<string, string>)["Content-Type"]).toBe("application/json");
+  });
+
   it("throws FrappeSessionError on 401/403", async () => {
     fetchMock.mockResolvedValueOnce(new Response("no", { status: 401 }));
     await expect(frappeFetch("x")).rejects.toBeInstanceOf(FrappeSessionError);

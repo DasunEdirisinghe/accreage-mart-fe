@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // Listing photos are uploaded through a server action (up to 5 MB each).
+    serverActions: { bodySizeLimit: "6mb" },
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },

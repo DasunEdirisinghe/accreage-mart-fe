@@ -53,3 +53,20 @@ export enum PRICING_METHODS {
   /** One commodity's full fields + its forecast days, for /admin/commodities/[id]. Staff/Admin only. */
   GET_COMMODITY = "accreage_mart.api.pricing.get_commodity",
 }
+
+export enum LISTING_METHODS {
+  /** Categories for the listing form dropdown and the marketplace filter. Guest. */
+  LIST_CATEGORIES = "accreage_mart.api.marketplace.list_listing_categories",
+  /** One listing as the caller may see it (owner / staff / public). Guest. */
+  GET = "accreage_mart.api.marketplace.get_listing",
+  /** Create a Direct or Auction listing (listing, then auction, then link). Verified seller. */
+  CREATE = "accreage_mart.api.listings.create_listing",
+  /** Edit a listing; auction-term changes on a published listing send it back to review. Owner. */
+  UPDATE = "accreage_mart.api.listings.update_listing",
+  /** Multipart image upload (JPG/PNG/WebP, 5 MB). Verified seller. */
+  UPLOAD_IMAGE = "accreage_mart.api.listing_images.upload_listing_image",
+  /** Delete an upload that is not on any listing. Owner of the upload. */
+  DISCARD_IMAGE = "accreage_mart.api.listing_images.discard_listing_image",
+  /** Resolve a Category to its price suggestion (tiers + forecast days). Authenticated. */
+  GET_PRICE_SUGGESTION = "accreage_mart.api.pricing.get_price_suggestion",
+}
