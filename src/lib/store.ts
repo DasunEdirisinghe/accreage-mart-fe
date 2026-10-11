@@ -32,7 +32,7 @@ import type {
   SellerProfile,
   BuyerProfile,
   Category,
-  Listing,
+  MockListing,
   Auction,
   Bid,
   Order,
@@ -51,7 +51,7 @@ export interface DB {
   sellerProfiles: SellerProfile[];
   buyerProfiles: BuyerProfile[];
   categories: Category[];
-  listings: Listing[];
+  listings: MockListing[];
   auctions: Auction[];
   bids: Bid[];
   orders: Order[];

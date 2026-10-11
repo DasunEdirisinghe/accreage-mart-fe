@@ -7,11 +7,11 @@
 
 import { mutate, nextId } from "@/lib/store";
 import type { DB } from "@/lib/store";
-import type { Auction, Bid, Listing } from "@/lib/types";
+import type { Auction, Bid, MockListing } from "@/lib/types";
 
 export interface AuctionDetails {
   auction: Auction;
-  listing: Listing;
+  listing: MockListing;
   bids: Bid[]; // sorted desc by amount
   highestBid: Bid | null;
 }

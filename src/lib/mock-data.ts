@@ -3,7 +3,7 @@ import type {
   SellerProfile,
   BuyerProfile,
   Category,
-  Listing,
+  MockListing,
   Auction,
   Bid,
   Order,
@@ -60,7 +60,7 @@ export const seedCategories: Category[] = [
 ];
 
 /* ------------------------------- listings ------------------------------- */
-export const seedListings: Listing[] = [
+export const seedListings: MockListing[] = [
   {
     id: "l-1", sellerId: "sp-1", categoryId: "cat-veg", title: "Fresh Carrots, Grade A (Upcountry)",
     description: "Freshly harvested Nuwara Eliya carrots, washed and graded. Ideal for hotels and supermarkets. Cold-stored within 4 hours of harvest.",
@@ -223,7 +223,7 @@ export const seedReviews: Review[] = [
 /* ------------------------------- inquiries ------------------------------ */
 export const seedInquiries: Inquiry[] = [
   { id: "inq-1", userId: "u-buyer-1", subject: "Bulk discount for recurring weekly orders", category: "Product", message: "We need 400kg of carrots weekly for our hotel chain. Can a standing discount be arranged?", status: "in_progress", createdAt: days(-2) },
-  { id: "inq-2", userId: "u-seller-3", subject: "How to attach lab certificates to listings", category: "Platform", message: "My compost listing was rejected. Where do I upload the NPK test report?", status: "resolved", response: "You can attach certification documents under Listing > Edit > Certifications. Re-submit after attaching.", createdAt: days(-3) },
+  { id: "inq-2", userId: "u-seller-3", subject: "How to attach lab certificates to listings", category: "Platform", message: "My compost listing was rejected. Where do I upload the NPK test report?", status: "resolved", response: "You can attach certification documents under MockListing > Edit > Certifications. Re-submit after attaching.", createdAt: days(-3) },
   { id: "inq-3", userId: "u-buyer-3", subject: "Payment proof stuck in review", category: "Payment", message: "Uploaded a bank slip 2 days ago for order o-1003 but status has not changed.", status: "open", createdAt: hours(-10) },
 ];
 

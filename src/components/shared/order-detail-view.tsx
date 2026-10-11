@@ -152,12 +152,8 @@ export function OrderDetailView({
                   {listing.image}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <Link
-                    href={`/marketplace/${listing.id}`}
-                    className="font-semibold hover:text-primary hover:underline"
-                  >
-                    {listing.title}
-                  </Link>
+                  {/* No link: a demo order's listing is not a real marketplace listing. */}
+                  <span className="font-semibold">{listing.title}</span>
                   <p className="text-sm text-muted-foreground">
                     {order.quantity.toLocaleString()} {listing.unit} × {formatLKR(order.unitPrice)}
                   </p>

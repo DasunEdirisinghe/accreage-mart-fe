@@ -9,7 +9,7 @@ import { ORDER_STATUS_LABEL, ORDER_STATUS_VARIANT } from "@/lib/services/orders"
 import { formatLKR, formatDate } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
-import { ListingCard } from "@/components/shared/listing-card";
+import { LatestListings } from "@/components/pages/marketplace/latest-listings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,8 +33,6 @@ export default function BuyerDashboard() {
     .filter((o) => ["paid", "completed"].includes(o.status))
     .reduce((s, o) => s + o.totalPrice, 0);
   const myReviews = db.reviews.filter((r) => r.buyerId === buyerProfile.id);
-
-  const recommended = db.listings.filter((l) => l.status === "approved").slice(0, 4);
 
   return (
     <>
@@ -152,12 +150,8 @@ export default function BuyerDashboard() {
       </div>
 
       <div className="mt-8">
-        <h2 className="mb-4 text-lg font-bold">Recommended for you</h2>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {recommended.map((l) => (
-            <ListingCard key={l.id} listing={l} seller={db.sellerProfiles.find((s) => s.id === l.sellerId)} />
-          ))}
-        </div>
+        <h2 className="mb-4 text-lg font-bold">New on the marketplace</h2>
+        <LatestListings limit={4} />
       </div>
     </>
   );

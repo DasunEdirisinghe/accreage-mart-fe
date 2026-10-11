@@ -1,12 +1,16 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { Package, Tags, Wallet, Star, ArrowRight, Plus, BrainCircuit } from "lucide-react";
 
+import { getMyListings } from "@/app/actions/listings";
 import { useDB } from "@/hooks/use-db";
 import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_VARIANT } from "@/lib/services/orders";
+import { statusLabel, statusTone, stockLabel } from "@/lib/listing-status";
 import { formatLKR, formatDate } from "@/lib/utils";
+import type { MyListingsResponse } from "@/types/listing.type";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { ForecastChart } from "@/components/shared/forecast-chart";
@@ -20,9 +24,22 @@ import {
 export default function SellerDashboard() {
   const db = useDB();
   const { user, sellerProfile } = useCurrentUser();
+
+  // Listings are real (Frappe-backed); orders, revenue and the forecast below are still demo data.
+  const [mine, setMine] = React.useState<MyListingsResponse | null>(null);
+  React.useEffect(() => {
+    let cancelled = false;
+    getMyListings({ page_size: 5 }).then((result) => {
+      if (!cancelled) setMine(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   if (!sellerProfile) return null;
 
-  const myListings = db.listings.filter((l) => l.sellerId === sellerProfile.id);
+  const totalListings = mine ? Object.values(mine.counts).reduce((sum, count) => sum + count, 0) : 0;
   const myOrders = db.orders.filter((o) => o.sellerId === sellerProfile.id);
   const revenue = myOrders
     .filter((o) => ["paid", "completed"].includes(o.status))
@@ -48,7 +65,7 @@ export default function SellerDashboard() {
       </PageHeader>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Active listings" value={String(myListings.filter((l) => l.status === "approved").length)} icon={Tags} sub={`${myListings.length} total`} />
+        <StatCard label="Active listings" value={mine ? String(mine.counts.live) : "–"} icon={Tags} sub={mine ? `${totalListings} total` : "Loading…"} />
         <StatCard label="Orders to action" value={String(pendingActions)} icon={Package} sub="Confirmations + payment reviews" />
         <StatCard label="Revenue" value={formatLKR(revenue)} icon={Wallet} sub="Paid & completed" />
         <StatCard label="Trust score" value={sellerProfile.trustScore.toFixed(1)} icon={Star} sub={`${sellerProfile.totalSales} completed sales`} />
@@ -137,31 +154,33 @@ export default function SellerDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {myListings.slice(0, 5).map((l) => (
-                <TableRow key={l.id}>
+              {(mine?.items ?? []).map((l) => (
+                <TableRow key={l.name}>
                   <TableCell className="max-w-64">
-                    <span className="block truncate font-medium">
-                      {l.image} {l.title}
-                    </span>
+                    <span className="block truncate font-medium">{l.title}</span>
                   </TableCell>
-                  <TableCell className="capitalize">{l.sellingType}</TableCell>
+                  <TableCell>{l.selling_type}</TableCell>
                   <TableCell>
-                    {l.quantityAvailable.toLocaleString()} {l.unit}
+                    {l.quantity_available.toLocaleString()} {l.unit}
+                    {stockLabel(l.stock_state) && (
+                      <Badge variant={l.stock_state === "out_of_stock" ? "destructive" : "warning"} className="ml-2">
+                        {stockLabel(l.stock_state)}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={
-                        l.status === "approved" ? "success" : l.status === "pending" ? "warning" : "destructive"
-                      }
-                    >
-                      {l.status}
-                    </Badge>
+                    <Badge variant={statusTone(l.status)}>{statusLabel(l.status)}</Badge>
                   </TableCell>
-                  <TableCell className="text-right text-muted-foreground">
-                    {formatDate(l.createdAt)}
-                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">{formatDate(l.created)}</TableCell>
                 </TableRow>
               ))}
+              {mine && mine.items.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    No listings yet.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>

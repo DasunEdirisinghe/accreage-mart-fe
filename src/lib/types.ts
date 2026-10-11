@@ -51,9 +51,15 @@ export interface Category {
 }
 
 export type SellingType = "direct" | "auction";
-export type ListingStatus = "pending" | "approved" | "rejected";
+/**
+ * MOCK ONLY. The in-memory demo listing that mock orders, auctions and chats still point at
+ * (their epics replace them). Real listings are Frappe-backed and live in
+ * src/types/listing.type.ts and src/types/marketplace.type.ts; nothing real may import this.
+ * Removed, with the mock listing records, by the epics named in docs/epics/04-listing-management.
+ */
+export type MockListingStatus = "pending" | "approved" | "rejected";
 
-export interface Listing {
+export interface MockListing {
   id: string;
   sellerId: string;
   categoryId: string;
@@ -69,7 +75,7 @@ export interface Listing {
   district: string;
   organic: boolean;
   certification?: string;
-  status: ListingStatus;
+  status: MockListingStatus;
   rejectionReason?: string;
   image: string; // emoji for mock UI
   imageGradient: string; // tailwind gradient classes (primary placeholder)

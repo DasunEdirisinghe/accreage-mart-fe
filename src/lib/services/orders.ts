@@ -8,11 +8,11 @@
 
 import { mutate, nextId } from "@/lib/store";
 import type { DB } from "@/lib/store";
-import type { Order, OrderStatus, PaymentProof, Listing } from "@/lib/types";
+import type { Order, OrderStatus, PaymentProof, MockListing } from "@/lib/types";
 
 export interface OrderDetails {
   order: Order;
-  listing: Listing;
+  listing: MockListing;
   buyerName: string;
   sellerName: string;
   proof: PaymentProof | null;
@@ -47,7 +47,7 @@ export function placeOrder(
   mutate((db) => {
     const listing = db.listings.find((l) => l.id === listingId);
     if (!listing || listing.status !== "approved") {
-      result = { ok: false, error: "Listing is not available." };
+      result = { ok: false, error: "MockListing is not available." };
       return;
     }
     if (quantity < listing.minOrderQty) {
