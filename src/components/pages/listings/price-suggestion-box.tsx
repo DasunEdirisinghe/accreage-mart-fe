@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { unitsMatch } from "@/lib/price-suggestion";
 import { formatLKR } from "@/lib/utils";
-import type { PriceSuggestionView } from "@/types/listing.type";
+import type { HorizonSuggestion, PriceHorizon, PriceSuggestionView } from "@/types/listing.type";
 
 interface PriceSuggestionBoxProps {
   category: string;
@@ -21,10 +21,18 @@ interface PriceSuggestionBoxProps {
 const NONE_TEXT = {
   no_commodity:
     "There is no price reference set up for this category yet, so no AI suggestion is available. Set your own price.",
+  disabled:
+    "Price suggestions have been turned off for this category. Set your own price.",
   unreliable:
     "A price reference exists for this category, but it isn't accurate enough yet to suggest a price. Set your own price.",
   error: "Couldn't load the price suggestion just now. You can still set your own price.",
 } as const;
+
+const HORIZON_LABELS: Record<PriceHorizon, string> = {
+  near: "1–7 days",
+  mid: "8–14 days",
+  long: "15–30 days",
+};
 
 /** The AI price suggestion: always says clearly when there isn't one, and why. */
 export function PriceSuggestionBox({ category, unit, sellingType, onUse }: PriceSuggestionBoxProps) {
@@ -79,39 +87,17 @@ export function PriceSuggestionBox({ category, unit, sellingType, onUse }: Price
             <p className="text-xs font-medium text-secondary-foreground">
               Wholesale reference for {view.commodityName}
             </p>
-            {view.tier === "direct" && view.price !== undefined ? (
-              <>
-                <p className="text-lg font-bold text-primary">
-                  {formatLKR(Math.round(view.price))}
-                  <span className="text-xs font-normal text-muted-foreground"> per {view.priceUnit}</span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Likely range {formatLKR(Math.round(view.min))} – {formatLKR(Math.round(view.max))}
-                </p>
-                <Button type="button" size="sm" variant="outline" className="w-full" onClick={() => onUse(Math.round(view.price!))}>
-                  {action} ({formatLKR(Math.round(view.price))})
-                </Button>
-              </>
-            ) : (
-              <>
-                <p className="text-lg font-bold text-primary">
-                  {formatLKR(Math.round(view.min))} – {formatLKR(Math.round(view.max))}
-                  <span className="text-xs font-normal text-muted-foreground"> per {view.priceUnit}</span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Only a range is shown: the forecast isn't accurate enough for a single price.
-                </p>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => onUse(Math.round((view.min + view.max) / 2))}
-                >
-                  {action} ({formatLKR(Math.round((view.min + view.max) / 2))})
-                </Button>
-              </>
-            )}
+            <div className="divide-y divide-border">
+              {view.horizons.map((horizon) => (
+                <HorizonRow
+                  key={horizon.horizon}
+                  horizon={horizon}
+                  priceUnit={view.priceUnit}
+                  action={action}
+                  onUse={onUse}
+                />
+              ))}
+            </div>
             {!unitsMatch(unit, view.priceUnit) && (
               <p className="text-xs text-amber-700">
                 This reference is per {view.priceUnit}, but you're selling per {unit}. Adjust it before you
@@ -126,5 +112,59 @@ export function PriceSuggestionBox({ category, unit, sellingType, onUse }: Price
         </p>
       </CardContent>
     </Card>
+  );
+}
+
+/** One horizon's own row — independently shows a price (gated by that horizon's own
+ * accuracy tier) or says plainly why nothing is shown for it. */
+function HorizonRow({
+  horizon,
+  priceUnit,
+  action,
+  onUse,
+}: {
+  horizon: HorizonSuggestion;
+  priceUnit: string;
+  action: string;
+  onUse: (value: number) => void;
+}) {
+  const label = `Valid ${HORIZON_LABELS[horizon.horizon]}`;
+
+  if (!horizon.available) {
+    return (
+      <div className="flex items-center justify-between gap-2 py-2 first:pt-0 last:pb-0">
+        <span className="text-xs font-medium text-secondary-foreground">{label}</span>
+        <span className="text-xs text-muted-foreground">Not accurate enough yet</span>
+      </div>
+    );
+  }
+
+  const value =
+    horizon.tier === "direct" && horizon.price !== undefined
+      ? Math.round(horizon.price)
+      : Math.round((horizon.min + horizon.max) / 2);
+
+  return (
+    <div className="space-y-1 py-2 first:pt-0 last:pb-0">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-xs font-medium text-secondary-foreground">{label}</span>
+        <span className="text-xs text-muted-foreground">
+          {formatLKR(Math.round(horizon.min))} – {formatLKR(Math.round(horizon.max))}
+        </span>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        {horizon.tier === "direct" && horizon.price !== undefined ? (
+          <p className="text-base font-bold text-primary">
+            {formatLKR(value)}
+            <span className="text-xs font-normal text-muted-foreground"> per {priceUnit}</span>
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">Only a range — not accurate enough for one price.</p>
+        )}
+        <Button type="button" size="sm" variant="outline" onClick={() => onUse(value)}>
+          {action} ({formatLKR(value)})
+        </Button>
+      </div>
+    </div>
   );
 }

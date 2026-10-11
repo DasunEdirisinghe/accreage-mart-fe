@@ -52,6 +52,12 @@ export enum PRICING_METHODS {
   LIST_COMMODITIES_OVERVIEW = "accreage_mart.api.pricing.list_commodities_overview",
   /** One commodity's full fields + its forecast days, for /admin/commodities/[id]. Staff/Admin only. */
   GET_COMMODITY = "accreage_mart.api.pricing.get_commodity",
+  /** Flips Commodity.is_active — the one write exception on the view-only commodity page. Staff/Admin only. */
+  SET_COMMODITY_ACTIVE = "accreage_mart.api.pricing.set_commodity_active",
+  /** The three horizon MAPE thresholds, for /admin/settings/pricing. Staff/Admin only. */
+  GET_PRICE_SUGGESTION_SETTINGS = "accreage_mart.api.pricing.get_price_suggestion_settings",
+  /** Saves the three horizon MAPE thresholds, validated to (0, 100]. Staff/Admin only. */
+  UPDATE_PRICE_SUGGESTION_SETTINGS = "accreage_mart.api.pricing.update_price_suggestion_settings",
 }
 
 export enum LISTING_METHODS {

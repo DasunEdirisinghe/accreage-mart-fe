@@ -9,6 +9,9 @@ import {
   getCommodities,
   getCommodity,
   getCommoditiesOverview,
+  getPriceSuggestionSettings,
+  setCommodityActive,
+  updatePriceSuggestionSettings,
   upsertCategory,
 } from "@/app/actions/pricing";
 import { frappeFetch } from "@/lib/frappe";
@@ -173,5 +176,93 @@ describe("getCommodity", () => {
       new Error('Frappe request failed: 417 {"message":"Unknown commodity: Nope"}'),
     );
     expect(await getCommodity("Nope")).toBeNull();
+  });
+});
+
+describe("setCommodityActive", () => {
+  it("posts the name and the new state, and reports the result", async () => {
+    mockFetch.mockResolvedValueOnce({
+      json: async () => ({ message: { name: "Rice - Nadu 1", is_active: false } }),
+    } as Response);
+    const res = await setCommodityActive("Rice - Nadu 1", false);
+    expect(res.ok).toBe(true);
+    expect(res.isActive).toBe(false);
+    const [method, init] = mockFetch.mock.calls[0];
+    expect(method).toBe("accreage_mart.api.pricing.set_commodity_active");
+    expect((init as { body: Record<string, unknown> }).body).toEqual({
+      name: "Rice - Nadu 1",
+      is_active: false,
+    });
+  });
+
+  it("returns the error message on failure", async () => {
+    mockFetch.mockRejectedValueOnce(
+      new Error('Frappe request failed: 417 {"message":"Unknown commodity: Nope"}'),
+    );
+    const res = await setCommodityActive("Nope", true);
+    expect(res.ok).toBe(false);
+    expect(res.error).toMatch(/unknown commodity/i);
+  });
+});
+
+describe("getPriceSuggestionSettings", () => {
+  it("returns the three thresholds from the backend", async () => {
+    mockFetch.mockResolvedValueOnce({
+      json: async () => ({
+        message: { mape_threshold_1_7d: 20, mape_threshold_8_14d: 20, mape_threshold_15_30d: 20 },
+      }),
+    } as Response);
+    const settings = await getPriceSuggestionSettings();
+    expect(settings).toEqual({
+      mape_threshold_1_7d: 20,
+      mape_threshold_8_14d: 20,
+      mape_threshold_15_30d: 20,
+    });
+  });
+
+  it("returns null on error", async () => {
+    mockFetch.mockRejectedValueOnce(new Error("Frappe request failed: 403 nope"));
+    expect(await getPriceSuggestionSettings()).toBeNull();
+  });
+});
+
+describe("updatePriceSuggestionSettings", () => {
+  it("posts the three thresholds and reports the saved result", async () => {
+    mockFetch.mockResolvedValueOnce({
+      json: async () => ({
+        message: { mape_threshold_1_7d: 15, mape_threshold_8_14d: 18, mape_threshold_15_30d: 22 },
+      }),
+    } as Response);
+    const res = await updatePriceSuggestionSettings({
+      mape_threshold_1_7d: 15,
+      mape_threshold_8_14d: 18,
+      mape_threshold_15_30d: 22,
+    });
+    expect(res.ok).toBe(true);
+    expect(res.settings).toEqual({
+      mape_threshold_1_7d: 15,
+      mape_threshold_8_14d: 18,
+      mape_threshold_15_30d: 22,
+    });
+    const [method, init] = mockFetch.mock.calls[0];
+    expect(method).toBe("accreage_mart.api.pricing.update_price_suggestion_settings");
+    expect((init as { body: Record<string, unknown> }).body).toEqual({
+      mape_threshold_1_7d: 15,
+      mape_threshold_8_14d: 18,
+      mape_threshold_15_30d: 22,
+    });
+  });
+
+  it("returns the error message on failure", async () => {
+    mockFetch.mockRejectedValueOnce(
+      new Error('Frappe request failed: 417 {"message":"mape_threshold_1_7d must be a percent greater than 0 and at most 100."}'),
+    );
+    const res = await updatePriceSuggestionSettings({
+      mape_threshold_1_7d: 0,
+      mape_threshold_8_14d: 20,
+      mape_threshold_15_30d: 20,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.error).toMatch(/must be a percent/i);
   });
 });

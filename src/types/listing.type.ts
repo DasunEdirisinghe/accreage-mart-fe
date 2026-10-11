@@ -53,18 +53,31 @@ export interface ListingFormState {
   errors?: Partial<Record<keyof ListingFormValues, string[]>>;
 }
 
-export type PriceSuggestionView =
-  | { state: "none"; reason: "no_commodity" | "unreliable" | "error"; commodityName?: string }
+export type PriceHorizon = "near" | "mid" | "long";
+
+/** One horizon's own result — independently gated, so one horizon can be shown while
+ * another is gated off for the same commodity. */
+export type HorizonSuggestion =
+  | { horizon: PriceHorizon; available: false }
   | {
-      state: "available";
-      commodityName: string;
-      /** What the prices are per, from the commodity: "kg", "egg", "fruit"... */
-      priceUnit: string;
+      horizon: PriceHorizon;
+      available: true;
       tier: "direct" | "range";
       /** Only for the "direct" tier. */
       price?: number;
       min: number;
       max: number;
+    };
+
+export type PriceSuggestionView =
+  | { state: "none"; reason: "no_commodity" | "unreliable" | "disabled" | "error"; commodityName?: string }
+  | {
+      state: "available";
+      commodityName: string;
+      /** What the prices are per, from the commodity: "kg", "egg", "fruit"... */
+      priceUnit: string;
+      /** One entry per horizon (near/mid/long), always all three, each independently gated. */
+      horizons: HorizonSuggestion[];
     };
 
 /** The owner's view of one listing (api.marketplace.get_listing -> listing). */

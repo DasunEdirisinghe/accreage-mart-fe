@@ -259,7 +259,8 @@ export interface ForecastDay {
 }
 
 /** Full Commodity fields + its current forecast, for /admin/commodities/[id] (Story 3.16,
- * view-only — no create/edit/delete anywhere on either route). */
+ * view-only except for `is_active` — Story 5.2 added a single toggle to turn a commodity's
+ * suggestions off; no other create/edit/delete exists on either route). */
 export interface Commodity {
   name: string;
   harti_category: string;
@@ -274,4 +275,12 @@ export interface Commodity {
   sample_size_15_30d: number;
   last_evaluated_on: string | null;
   forecast_days: ForecastDay[];
+}
+
+/** The three horizon MAPE thresholds that gate a price suggestion (Story 5.1/5.3) — one
+ * global setting, editable by Staff/Admin at /admin/settings/pricing. */
+export interface PriceSuggestionSettings {
+  mape_threshold_1_7d: number;
+  mape_threshold_8_14d: number;
+  mape_threshold_15_30d: number;
 }

@@ -135,7 +135,16 @@ describe("ListingForm: creating", () => {
 
   it("looks up the price suggestion when a category is chosen and can use it", async () => {
     const user = userEvent.setup();
-    mockSuggest.mockResolvedValue({ state: "available", commodityName: "Carrot", priceUnit: "kg", tier: "direct", price: 150, min: 130, max: 170 });
+    mockSuggest.mockResolvedValue({
+      state: "available",
+      commodityName: "Carrot",
+      priceUnit: "kg",
+      horizons: [
+        { horizon: "near", available: true, tier: "direct", price: 150, min: 130, max: 170 },
+        { horizon: "mid", available: false },
+        { horizon: "long", available: false },
+      ],
+    });
     render(<ListingForm mode="create" categories={categories} />);
 
     expect(screen.getByText(/Choose a category to see a price reference/)).toBeInTheDocument();
@@ -157,7 +166,16 @@ describe("ListingForm: creating", () => {
 
   it("uses the suggestion as the minimum bid for an auction", async () => {
     const user = userEvent.setup();
-    mockSuggest.mockResolvedValue({ state: "available", commodityName: "Carrot", priceUnit: "kg", tier: "range", min: 100, max: 140 });
+    mockSuggest.mockResolvedValue({
+      state: "available",
+      commodityName: "Carrot",
+      priceUnit: "kg",
+      horizons: [
+        { horizon: "near", available: true, tier: "range", min: 100, max: 140 },
+        { horizon: "mid", available: false },
+        { horizon: "long", available: false },
+      ],
+    });
     render(<ListingForm mode="create" categories={categories} />);
     await user.click(screen.getByRole("button", { name: /Auction/ }));
     await user.click(screen.getByRole("combobox", { name: /Category/ }));

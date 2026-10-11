@@ -14,6 +14,7 @@ import {
   LineChart,
   Tags,
   Sprout,
+  SlidersHorizontal,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 
@@ -30,6 +31,7 @@ const NAV = [
   { href: "/admin/staff", label: "Staff management", icon: ShieldCheck },
   { href: "/admin/categories", label: "Categories", icon: Tags },
   { href: "/admin/commodities", label: "Commodities", icon: Sprout },
+  { href: "/admin/settings/pricing", label: "Price settings", icon: SlidersHorizontal },
   { href: "/admin/reports", label: "Reports", icon: LineChart },
 ];
 

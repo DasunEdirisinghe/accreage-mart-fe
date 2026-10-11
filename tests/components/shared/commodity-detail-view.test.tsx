@@ -1,5 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/app/actions/pricing", () => ({ setCommodityActive: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 
 import { CommodityDetailView } from "@/components/shared/commodity-detail-view";
 import type { Commodity } from "@/lib/types";

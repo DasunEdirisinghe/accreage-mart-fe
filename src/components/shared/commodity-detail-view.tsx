@@ -3,8 +3,8 @@ import { ArrowLeft } from "lucide-react";
 
 import type { Commodity, ForecastPoint } from "@/lib/types";
 import { formatDate, formatLKR } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CommodityActiveToggle } from "@/components/shared/commodity-active-toggle";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -53,11 +53,9 @@ export function CommodityDetailView({ commodity, today }: { commodity: Commodity
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center justify-between gap-2">
             {commodity.name}
-            <Badge variant={commodity.is_active ? "secondary" : "outline"}>
-              {commodity.is_active ? "Active" : "Inactive"}
-            </Badge>
+            <CommodityActiveToggle name={commodity.name} isActive={commodity.is_active} />
           </CardTitle>
         </CardHeader>
         <CardContent>
