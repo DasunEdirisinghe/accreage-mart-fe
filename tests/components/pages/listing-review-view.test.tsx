@@ -100,23 +100,19 @@ describe("ListingReviewView: the whole listing before any decision", () => {
 });
 
 describe("ListingReviewView: price reference", () => {
-  it("shows the AI range and how the seller's price compares", () => {
-    const { rerender } = render(<ListingReviewView data={makeReview()} />);
-    expect(screen.getByText(/Suggested range at submission/)).toHaveTextContent("Rs. 100 – Rs. 140");
-    expect(screen.getByText(/above the suggested range/)).toBeInTheDocument();
-
-    rerender(<ListingReviewView data={withListing({ price_per_unit: 120 })} />);
-    expect(screen.getByText(/within the suggested range/)).toBeInTheDocument();
-    rerender(<ListingReviewView data={withListing({ price_per_unit: 90 })} />);
-    expect(screen.getByText(/below the suggested range/)).toBeInTheDocument();
+  it("shows that the seller used the AI suggestion, its price, and which horizon", () => {
+    render(<ListingReviewView data={makeReview()} />);
+    const text = screen.getByText(/used the AI price suggestion/);
+    expect(text).toHaveTextContent("Rs. 150");
+    expect(text).toHaveTextContent("1–7 day forecast");
   });
 
-  it("says when there was no suggestion", () => {
+  it("says when the seller set their own price instead", () => {
     const review = makeReview();
-    review.review.ai_suggested_min = null;
-    review.review.ai_suggested_max = null;
+    review.review.price_suggestion_used = false;
+    review.review.price_suggestion_horizon = null;
     render(<ListingReviewView data={review} />);
-    expect(screen.getByText(/No price suggestion was available/)).toBeInTheDocument();
+    expect(screen.getByText(/without using the AI suggestion/)).toBeInTheDocument();
   });
 
   it("shows an auction's fair value", () => {

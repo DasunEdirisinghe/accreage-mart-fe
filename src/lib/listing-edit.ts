@@ -110,5 +110,7 @@ export function detailToFormValues(listing: OwnListingDetail): ListingFormValues
     start_time: fromBackendDateTime(listing.auction?.start_time),
     end_time: fromBackendDateTime(listing.auction?.end_time),
     auction_terms_acknowledged: false,
+    price_suggestion_used: false,
+    price_suggestion_horizon: "",
   };
 }

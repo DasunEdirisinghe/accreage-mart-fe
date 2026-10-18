@@ -35,6 +35,8 @@ const direct = (over: Partial<ListingFormValues> = {}): ListingFormValues => ({
   start_time: "",
   end_time: "",
   auction_terms_acknowledged: false,
+  price_suggestion_used: false,
+  price_suggestion_horizon: "",
   ...over,
 });
 

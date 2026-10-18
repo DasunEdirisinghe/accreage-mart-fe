@@ -56,6 +56,8 @@ export function formDataToValues(formData: FormData): ListingFormValues {
     start_time: text("start_time"),
     end_time: text("end_time"),
     auction_terms_acknowledged: flag("auction_terms_acknowledged"),
+    price_suggestion_used: flag("price_suggestion_used"),
+    price_suggestion_horizon: text("price_suggestion_horizon") as ListingFormValues["price_suggestion_horizon"],
   };
 }
 
@@ -94,6 +96,8 @@ export function makeListingSchema(options: SchemaOptions) {
       start_time: z.string(),
       end_time: z.string(),
       auction_terms_acknowledged: z.boolean(),
+      price_suggestion_used: z.boolean(),
+      price_suggestion_horizon: z.string(),
     })
     .superRefine((v, ctx) => {
       const issue = (path: keyof ListingFormValues, message: string) =>
@@ -170,6 +174,8 @@ export function toCreateBody(v: ParsedListing): Record<string, unknown> {
     start_time: isAuction ? toBackendDateTime(v.start_time) : null,
     end_time: isAuction ? toBackendDateTime(v.end_time) : null,
     auction_terms_acknowledged: v.auction_terms_acknowledged ? 1 : 0,
+    price_suggestion_used: v.price_suggestion_used ? 1 : 0,
+    price_suggestion_horizon: v.price_suggestion_used ? v.price_suggestion_horizon || null : null,
   };
 }
 
@@ -200,9 +206,13 @@ export function toUpdateValues(
       values.min_bid = Number(v.min_bid);
       values.start_time = toBackendDateTime(v.start_time);
       values.end_time = toBackendDateTime(v.end_time);
+      values.price_suggestion_used = v.price_suggestion_used ? 1 : 0;
+      values.price_suggestion_horizon = v.price_suggestion_used ? v.price_suggestion_horizon || null : null;
     }
   } else {
     values.price_per_unit = Number(v.price_per_unit);
+    values.price_suggestion_used = v.price_suggestion_used ? 1 : 0;
+    values.price_suggestion_horizon = v.price_suggestion_used ? v.price_suggestion_horizon || null : null;
     values.min_order_qty = optionalNumber(v.min_order_qty) ?? 0;
     values.low_stock_level = optionalNumber(v.low_stock_level) ?? 0;
   }

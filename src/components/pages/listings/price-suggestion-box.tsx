@@ -14,8 +14,9 @@ interface PriceSuggestionBoxProps {
   category: string;
   unit: string;
   sellingType: "Direct" | "Auction";
-  /** Called with the number the seller chose to use (a price, or a minimum bid). */
-  onUse: (value: number) => void;
+  /** Called with the number the seller chose to use (a price, or a minimum bid) and which
+   * horizon it came from. */
+  onUse: (value: number, horizon: PriceHorizon) => void;
 }
 
 const NONE_TEXT = {
@@ -126,7 +127,7 @@ function HorizonRow({
   horizon: HorizonSuggestion;
   priceUnit: string;
   action: string;
-  onUse: (value: number) => void;
+  onUse: (value: number, horizon: PriceHorizon) => void;
 }) {
   const label = `Valid ${HORIZON_LABELS[horizon.horizon]}`;
 
@@ -139,10 +140,8 @@ function HorizonRow({
     );
   }
 
-  const value =
-    horizon.tier === "direct" && horizon.price !== undefined
-      ? Math.round(horizon.price)
-      : Math.round((horizon.min + horizon.max) / 2);
+  const isDirect = horizon.tier === "direct" && horizon.price !== undefined;
+  const value = isDirect ? Math.round(horizon.price!) : null;
 
   return (
     <div className="space-y-1 py-2 first:pt-0 last:pb-0">
@@ -153,17 +152,19 @@ function HorizonRow({
         </span>
       </div>
       <div className="flex items-center justify-between gap-2">
-        {horizon.tier === "direct" && horizon.price !== undefined ? (
+        {isDirect ? (
           <p className="text-base font-bold text-primary">
-            {formatLKR(value)}
+            {formatLKR(value!)}
             <span className="text-xs font-normal text-muted-foreground"> per {priceUnit}</span>
           </p>
         ) : (
           <p className="text-xs text-muted-foreground">Only a range — not accurate enough for one price.</p>
         )}
-        <Button type="button" size="sm" variant="outline" onClick={() => onUse(value)}>
-          {action} ({formatLKR(value)})
-        </Button>
+        {isDirect && (
+          <Button type="button" size="sm" variant="outline" onClick={() => onUse(value!, horizon.horizon)}>
+            {action} ({formatLKR(value!)})
+          </Button>
+        )}
       </div>
     </div>
   );

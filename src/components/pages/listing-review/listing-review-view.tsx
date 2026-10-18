@@ -18,6 +18,12 @@ import type { ReviewListingResponse } from "@/types/listing-review.type";
 
 const wall = (value: string) => value.slice(0, 19).replace(" ", "T");
 
+const SUGGESTION_HORIZON_TEXT = {
+  near: "1–7 day forecast",
+  mid: "8–14 day forecast",
+  long: "15–30 day forecast",
+} as const;
+
 const HISTORY_TEXT = {
   Approved: "Approved",
   Rejected: "Rejected",
@@ -150,8 +156,7 @@ function ReviewContext({ data }: { data: ReviewListingResponse }) {
   const { listing, review } = data;
   const isAuction = listing.selling_type === "Auction";
   const { seller } = review;
-  const hasRange = review.ai_suggested_min !== null && review.ai_suggested_max !== null;
-  const price = listing.price_per_unit;
+  const suggestedPrice = isAuction ? listing.auction?.min_bid ?? null : listing.price_per_unit;
 
   return (
     <div className="space-y-4">
@@ -182,28 +187,25 @@ function ReviewContext({ data }: { data: ReviewListingResponse }) {
           <CardTitle className="text-base">AI price reference</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          {hasRange ? (
-            <>
-              <div>
-                Suggested range at submission:{" "}
-                <span className="font-semibold">
-                  {formatLKR(review.ai_suggested_min!)} – {formatLKR(review.ai_suggested_max!)}
-                </span>{" "}
-                per {listing.unit}
-              </div>
-              {!isAuction && price !== null && (
-                <div className="text-muted-foreground">
-                  Seller's price {formatLKR(price)}:{" "}
-                  {price > review.ai_suggested_max!
-                    ? "above the suggested range"
-                    : price < review.ai_suggested_min!
-                      ? "below the suggested range"
-                      : "within the suggested range"}
-                </div>
+          {review.price_suggestion_used ? (
+            <div>
+              The seller used the AI price suggestion
+              {suggestedPrice !== null && (
+                <>
+                  {" "}
+                  of <span className="font-semibold">{formatLKR(suggestedPrice)}</span> per {listing.unit}
+                </>
               )}
-            </>
+              {review.price_suggestion_horizon && (
+                <> ({SUGGESTION_HORIZON_TEXT[review.price_suggestion_horizon]})</>
+              )}{" "}
+              when setting {isAuction ? "the minimum bid" : "the price"}.
+            </div>
           ) : (
-            <div className="text-muted-foreground">No price suggestion was available when this was submitted.</div>
+            <div className="text-muted-foreground">
+              The seller set {isAuction ? "the minimum bid" : "the price"} themselves, without using the AI
+              suggestion.
+            </div>
           )}
           {isAuction && review.ai_fair_value !== null && (
             <div>
@@ -211,7 +213,6 @@ function ReviewContext({ data }: { data: ReviewListingResponse }) {
               {listing.unit}
             </div>
           )}
-          <div className="text-xs text-muted-foreground">A guide only. It is a snapshot, not a live figure.</div>
         </CardContent>
       </Card>
 

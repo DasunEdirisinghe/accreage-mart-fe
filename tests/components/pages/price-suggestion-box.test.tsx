@@ -67,7 +67,7 @@ describe("PriceSuggestionBox", () => {
     expect(screen.getAllByText("Not accurate enough yet")).toHaveLength(2);
 
     await user.click(screen.getByRole("button", { name: /Use this price \(Rs\. 120\)/ }));
-    expect(onUse).toHaveBeenCalledWith(120);
+    expect(onUse).toHaveBeenCalledWith(120, "near");
   });
 
   it("shows each horizon independently — one gated off between two available ones", async () => {
@@ -86,8 +86,7 @@ describe("PriceSuggestionBox", () => {
     expect(screen.getByText("Not accurate enough yet")).toBeInTheDocument();
   });
 
-  it("offers only a range when a horizon's forecast isn't accurate enough for a price, and uses the midpoint", async () => {
-    const user = userEvent.setup();
+  it("offers only a range, with no button to use it, when a horizon's forecast isn't accurate enough for a price", async () => {
     const onUse = setup({
       state: "available",
       commodityName: "Carrot",
@@ -95,8 +94,8 @@ describe("PriceSuggestionBox", () => {
       horizons: [{ horizon: "near", available: true, tier: "range", min: 100, max: 140 }, gatedOff("mid"), gatedOff("long")],
     });
     expect(await screen.findByText(/Only a range/)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /Use this price/ }));
-    expect(onUse).toHaveBeenCalledWith(120);
+    expect(screen.queryByRole("button", { name: /Use this price/ })).not.toBeInTheDocument();
+    expect(onUse).not.toHaveBeenCalled();
   });
 
   it("offers the value as a minimum bid for an auction", async () => {
@@ -106,12 +105,12 @@ describe("PriceSuggestionBox", () => {
         state: "available",
         commodityName: "Carrot",
         priceUnit: "kg",
-        horizons: [{ horizon: "near", available: true, tier: "range", min: 100, max: 140 }, gatedOff("mid"), gatedOff("long")],
+        horizons: [{ horizon: "near", available: true, tier: "direct", price: 120, min: 100, max: 140 }, gatedOff("mid"), gatedOff("long")],
       },
       { sellingType: "Auction" },
     );
     await user.click(await screen.findByRole("button", { name: /Use as minimum bid/ }));
-    expect(onUse).toHaveBeenCalledWith(120);
+    expect(onUse).toHaveBeenCalledWith(120, "near");
   });
 
   it("warns when the seller's unit isn't the per-kg reference unit", async () => {

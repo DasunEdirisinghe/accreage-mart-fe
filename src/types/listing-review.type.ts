@@ -1,6 +1,6 @@
 /** Backend response shapes for the staff review endpoints (api/listing_review.py). */
 
-import type { ListingStatusLabel, OwnListingDetail, SellingType } from "@/types/listing.type";
+import type { ListingStatusLabel, OwnListingDetail, PriceHorizon, SellingType } from "@/types/listing.type";
 
 export interface ReviewQueueItem {
   name: string;
@@ -88,8 +88,9 @@ export interface ReviewListingResponse {
   expected_modified: string;
   review: {
     submitted_on: string | null;
-    ai_suggested_min: number | null;
-    ai_suggested_max: number | null;
+    /** Whether the seller's submitted price/bid is exactly the AI suggestion they clicked, unedited since. */
+    price_suggestion_used: boolean;
+    price_suggestion_horizon: PriceHorizon | null;
     ai_fair_value: number | null;
     resubmission_note: string | null;
     reviewed_by: string | null;

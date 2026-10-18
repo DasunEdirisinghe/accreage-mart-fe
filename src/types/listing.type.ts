@@ -45,6 +45,9 @@ export interface ListingFormValues {
   start_time: string;
   end_time: string;
   auction_terms_acknowledged: boolean;
+  /** Whether the current price/min_bid is exactly an AI suggestion the seller clicked, unedited since. */
+  price_suggestion_used: boolean;
+  price_suggestion_horizon: PriceHorizon | "";
 }
 
 export interface ListingFormState {

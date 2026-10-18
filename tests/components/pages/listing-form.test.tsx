@@ -51,6 +51,8 @@ const initialDirect: ListingFormValues = {
   start_time: "",
   end_time: "",
   auction_terms_acknowledged: false,
+  price_suggestion_used: false,
+  price_suggestion_horizon: "",
 };
 
 const initialAuction: ListingFormValues = {
@@ -171,7 +173,7 @@ describe("ListingForm: creating", () => {
       commodityName: "Carrot",
       priceUnit: "kg",
       horizons: [
-        { horizon: "near", available: true, tier: "range", min: 100, max: 140 },
+        { horizon: "near", available: true, tier: "direct", price: 120, min: 100, max: 140 },
         { horizon: "mid", available: false },
         { horizon: "long", available: false },
       ],

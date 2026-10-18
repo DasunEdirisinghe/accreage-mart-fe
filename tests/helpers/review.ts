@@ -71,8 +71,8 @@ export function makeReview(over: Record<string, unknown> = {}): ReviewListingRes
     expected_modified: "2026-10-05 09:00:00.123456",
     review: {
       submitted_on: "2026-10-05 09:00:00.000000",
-      ai_suggested_min: 100,
-      ai_suggested_max: 140,
+      price_suggestion_used: true,
+      price_suggestion_horizon: "near",
       ai_fair_value: null,
       resubmission_note: null,
       reviewed_by: null,

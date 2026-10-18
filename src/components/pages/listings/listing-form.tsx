@@ -29,6 +29,7 @@ import type {
   ListingCategoryOption,
   ListingFormState,
   ListingFormValues,
+  PriceHorizon,
   SellingType,
 } from "@/types/listing.type";
 
@@ -53,6 +54,8 @@ const EMPTY: ListingFormValues = {
   start_time: "",
   end_time: "",
   auction_terms_acknowledged: false,
+  price_suggestion_used: false,
+  price_suggestion_horizon: "",
 };
 
 const OPEN: EditRestriction = {
@@ -95,6 +98,15 @@ export function ListingForm({
     (key: keyof ListingFormValues) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       set(key, event.target.value as never);
+  /** The price / min bid fields: typing by hand means the AI suggestion is no longer in use. */
+  const onPriceText =
+    (key: "price_per_unit" | "min_bid") => (event: React.ChangeEvent<HTMLInputElement>) =>
+      setValues((current) => ({
+        ...current,
+        [key]: event.target.value,
+        price_suggestion_used: false,
+        price_suggestion_horizon: "",
+      }));
 
   const errors = state.errors ?? {};
   const first = (key: keyof ListingFormValues) => errors[key]?.[0];
@@ -102,6 +114,14 @@ export function ListingForm({
   const isAuction = values.selling_type === "Auction";
   const editing = mode === "edit";
   const minStart = React.useMemo(() => siteNow(), []);
+
+  const useSuggestion = (value: number, horizon: PriceHorizon) =>
+    setValues((current) => ({
+      ...current,
+      [isAuction ? "min_bid" : "price_per_unit"]: String(value),
+      price_suggestion_used: true,
+      price_suggestion_horizon: horizon,
+    }));
 
   const timeIssues =
     isAuction && values.start_time && values.end_time && !restriction.termsLocked
@@ -126,6 +146,8 @@ export function ListingForm({
       <input type="hidden" name="selling_type" value={values.selling_type} />
       <input type="hidden" name="images" value={JSON.stringify(values.images)} />
       <input type="hidden" name="organic" value={values.organic ? "on" : ""} />
+      <input type="hidden" name="price_suggestion_used" value={values.price_suggestion_used ? "on" : ""} />
+      <input type="hidden" name="price_suggestion_horizon" value={values.price_suggestion_horizon} />
 
       <div className="space-y-6">
         {restriction.banner && (
@@ -390,7 +412,7 @@ export function ListingForm({
                     min={0}
                     step="any"
                     value={values.min_bid}
-                    onChange={onText("min_bid")}
+                    onChange={onPriceText("min_bid")}
                     readOnly={restriction.termsLocked}
                     placeholder="e.g. 300"
                   />
@@ -472,7 +494,7 @@ export function ListingForm({
                   min={0}
                   step="any"
                   value={values.price_per_unit}
-                  onChange={onText("price_per_unit")}
+                  onChange={onPriceText("price_per_unit")}
                   placeholder="e.g. 285"
                 />
                 <FieldError message={first("price_per_unit")} />
@@ -490,7 +512,7 @@ export function ListingForm({
           category={values.category}
           unit={values.unit}
           sellingType={values.selling_type}
-          onUse={(value) => set(isAuction ? "min_bid" : "price_per_unit", String(value))}
+          onUse={useSuggestion}
         />
 
         <Card>
