@@ -198,7 +198,10 @@ export interface ChatMessage {
 
 export type NotificationChannel = "email" | "sms" | "in_app";
 
-export interface AppNotification {
+/** Legacy mock-store shape, seeded by mock-data.ts and written by the mock
+ *  orders/auctions services. Superseded by `AppNotification` below for the real,
+ *  Frappe-backed bell (epic 06) — kept only so those still-mock write paths type-check. */
+export interface MockNotification {
   id: string;
   userId: string;
   type: "auction" | "order" | "payment" | "listing" | "system";
@@ -206,6 +209,20 @@ export interface AppNotification {
   channel: NotificationChannel;
   read: boolean;
   sentAt: string;
+}
+
+/** A real `Notification Log` row from the backend (accreage_mart.api.notifications),
+ *  reshaped for the frontend bell. `documentType`/`documentName` feed
+ *  `resolveNotificationLink` for click-through navigation. */
+export interface AppNotification {
+  id: string;
+  subject: string;
+  message: string;
+  eventType: string;
+  documentType: string | null;
+  documentName: string | null;
+  read: boolean;
+  createdAt: string;
 }
 
 export interface ContentPage {

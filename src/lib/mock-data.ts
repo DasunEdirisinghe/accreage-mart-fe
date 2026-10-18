@@ -11,7 +11,7 @@ import type {
   Review,
   Inquiry,
   ChatThread,
-  AppNotification,
+  MockNotification,
   ContentPage,
   Announcement,
   CategoryForecast,
@@ -248,7 +248,7 @@ export const seedChats: ChatThread[] = [
 ];
 
 /* ----------------------------- notifications ---------------------------- */
-export const seedNotifications: AppNotification[] = [
+export const seedNotifications: MockNotification[] = [
   { id: "n-1", userId: "u-buyer-1", type: "auction", message: "You were outbid on Jaffna Red Onions. Current highest bid: Rs. 336/kg.", channel: "in_app", read: false, sentAt: hours(-2) },
   { id: "n-2", userId: "u-buyer-1", type: "order", message: "Order o-1003 payment proof is under review.", channel: "in_app", read: false, sentAt: hours(-20) },
   { id: "n-3", userId: "u-seller-1", type: "order", message: "New order o-1004 received for Organic Cabbage (300kg).", channel: "in_app", read: false, sentAt: days(-1) },

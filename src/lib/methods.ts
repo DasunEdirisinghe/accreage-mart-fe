@@ -108,6 +108,15 @@ export enum REVIEW_METHODS {
   SUSPEND = "accreage_mart.api.listing_review.suspend_listing",
 }
 
+export enum NOTIFICATION_METHODS {
+  /** The current user's Notification Log rows, newest first. Authenticated. */
+  LIST = "accreage_mart.api.notifications.list_notifications",
+  /** Marks one notification seen (owner only, enforced server-side). Authenticated. */
+  MARK_SEEN = "accreage_mart.api.notifications.mark_notification_seen",
+  /** Marks every one of the current user's notifications seen. Authenticated. */
+  MARK_ALL_SEEN = "accreage_mart.api.notifications.mark_all_seen",
+}
+
 export enum MARKETPLACE_METHODS {
   /** Published listings of active sellers: filters, search, sort, paging. Guest. */
   LIST = "accreage_mart.api.marketplace.list_marketplace",

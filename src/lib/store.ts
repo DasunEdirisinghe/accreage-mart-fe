@@ -40,7 +40,7 @@ import type {
   Review,
   Inquiry,
   ChatThread,
-  AppNotification,
+  MockNotification,
   ContentPage,
   Announcement,
   CategoryForecast,
@@ -59,7 +59,7 @@ export interface DB {
   reviews: Review[];
   inquiries: Inquiry[];
   chats: ChatThread[];
-  notifications: AppNotification[];
+  notifications: MockNotification[];
   contentPages: ContentPage[];
   announcements: Announcement[];
   forecasts: CategoryForecast[];

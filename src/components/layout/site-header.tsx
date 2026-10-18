@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Bell, Leaf, Menu, LogOut, LayoutDashboard, UserRound } from "lucide-react";
@@ -8,8 +9,9 @@ import { cn, initials } from "@/lib/utils";
 import { demoLogin } from "@/app/actions/auth";
 import { roleHome } from "@/lib/auth-routes";
 import { useCurrentUser } from "@/components/providers/current-user-provider";
-import { useDB } from "@/hooks/use-db";
-import { markNotificationsRead } from "@/lib/services/engagement";
+import { getNotifications, markAllNotificationsSeen, markNotificationSeen } from "@/app/actions/notifications";
+import { resolveNotificationLink } from "@/lib/notification-link";
+import type { AppNotification } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,11 +39,34 @@ export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useCurrentUser();
-  const db = useDB();
 
-  const unread = user
-    ? db.notifications.filter((n) => n.userId === user.id && !n.read)
-    : [];
+  const [notifications, setNotifications] = React.useState<AppNotification[]>([]);
+
+  const refreshNotifications = React.useCallback(() => {
+    if (!user || user.role === "public") {
+      setNotifications([]);
+      return;
+    }
+    getNotifications().then(setNotifications);
+  }, [user]);
+
+  React.useEffect(() => {
+    refreshNotifications();
+  }, [refreshNotifications]);
+
+  const unread = notifications.filter((n) => !n.read);
+
+  async function handleMarkAllRead() {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    await markAllNotificationsSeen();
+    refreshNotifications();
+  }
+
+  async function handleNotificationClick(n: AppNotification) {
+    if (n.read) return;
+    setNotifications((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+    void markNotificationSeen(n.id);
+  }
 
   const dashboardHome = user && user.role !== "public" ? roleHome(user.role) : "/";
 
@@ -94,23 +119,22 @@ export function SiteHeader() {
                     {unread.length > 0 && (
                       <button
                         className="text-xs font-normal text-primary hover:underline"
-                        onClick={() => markNotificationsRead(user.id)}
+                        onClick={handleMarkAllRead}
                       >
                         Mark all read
                       </button>
                     )}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {db.notifications.filter((n) => n.userId === user.id).length === 0 && (
+                  {notifications.length === 0 && (
                     <p className="px-2 py-4 text-center text-sm text-muted-foreground">
                       No notifications yet.
                     </p>
                   )}
-                  {db.notifications
-                    .filter((n) => n.userId === user.id)
-                    .slice(0, 6)
-                    .map((n) => (
-                      <div key={n.id} className="flex items-start gap-2 px-2 py-2 text-sm">
+                  {notifications.slice(0, 6).map((n) => {
+                    const href = resolveNotificationLink(n.documentType, n.documentName, user.role);
+                    const row = (
+                      <div className="flex items-start gap-2 px-2 py-2 text-sm">
                         <span
                           className={cn(
                             "mt-1.5 h-2 w-2 shrink-0 rounded-full",
@@ -118,10 +142,25 @@ export function SiteHeader() {
                           )}
                         />
                         <p className={cn("leading-snug", n.read && "text-muted-foreground")}>
-                          {n.message}
+                          {n.subject || n.message}
                         </p>
                       </div>
-                    ))}
+                    );
+                    return href ? (
+                      <Link
+                        key={n.id}
+                        href={href}
+                        className="block rounded-sm hover:bg-secondary"
+                        onClick={() => handleNotificationClick(n)}
+                      >
+                        {row}
+                      </Link>
+                    ) : (
+                      <div key={n.id} onClick={() => handleNotificationClick(n)}>
+                        {row}
+                      </div>
+                    );
+                  })}
                 </DropdownMenuContent>
               </DropdownMenu>
 

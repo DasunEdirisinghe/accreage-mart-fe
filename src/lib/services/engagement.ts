@@ -118,11 +118,5 @@ export function sendMessage(threadId: string, senderId: string, text: string): v
 }
 
 /* ----------------------------- notifications ---------------------------- */
-
-export function markNotificationsRead(userId: string): void {
-  mutate((db) => {
-    db.notifications.forEach((n) => {
-      if (n.userId === userId) n.read = true;
-    });
-  });
-}
+// WIRED: real notifications live in Frappe's Notification Log, reachable via
+// src/app/actions/notifications.ts. See docs/epics/06-notification-management.
