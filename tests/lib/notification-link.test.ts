@@ -9,16 +9,10 @@ describe("resolveNotificationLink", () => {
   });
 
   describe("Listing", () => {
-    it("routes a seller to their own listing's edit page", () => {
-      expect(resolveNotificationLink("Listing", "lst-1", "seller")).toBe("/seller/listings/lst-1/edit");
-    });
-
-    it("routes staff and admin to the review page", () => {
-      expect(resolveNotificationLink("Listing", "lst-1", "staff")).toBe("/admin/approvals/lst-1");
-      expect(resolveNotificationLink("Listing", "lst-1", "admin")).toBe("/admin/approvals/lst-1");
-    });
-
-    it("routes a buyer to the public listing page", () => {
+    it("routes every role to the marketplace listing page (viewer-aware server-side)", () => {
+      expect(resolveNotificationLink("Listing", "lst-1", "seller")).toBe("/marketplace/lst-1");
+      expect(resolveNotificationLink("Listing", "lst-1", "staff")).toBe("/marketplace/lst-1");
+      expect(resolveNotificationLink("Listing", "lst-1", "admin")).toBe("/marketplace/lst-1");
       expect(resolveNotificationLink("Listing", "lst-1", "buyer")).toBe("/marketplace/lst-1");
     });
   });

@@ -131,7 +131,7 @@ export function SiteHeader() {
                       No notifications yet.
                     </p>
                   )}
-                  {notifications.slice(0, 6).map((n) => {
+                  {notifications.slice(0, 10).map((n) => {
                     const href = resolveNotificationLink(n.documentType, n.documentName, user.role);
                     const row = (
                       <div className="flex items-start gap-2 px-2 py-2 text-sm">
@@ -173,6 +173,17 @@ export function SiteHeader() {
                       </div>
                     );
                   })}
+                  {notifications.length > 0 && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <Link
+                        href="/notifications"
+                        className="block rounded-sm px-2 py-2 text-center text-sm font-medium text-primary hover:bg-secondary"
+                      >
+                        View all
+                      </Link>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 

@@ -111,6 +111,8 @@ export enum REVIEW_METHODS {
 export enum NOTIFICATION_METHODS {
   /** The current user's Notification Log rows, newest first. Authenticated. */
   LIST = "accreage_mart.api.notifications.list_notifications",
+  /** Paginated notification history for the "view all" page. Authenticated. */
+  LIST_PAGE = "accreage_mart.api.notifications.list_notifications_page",
   /** Marks one notification seen (owner only, enforced server-side). Authenticated. */
   MARK_SEEN = "accreage_mart.api.notifications.mark_notification_seen",
   /** Marks every one of the current user's notifications seen. Authenticated. */

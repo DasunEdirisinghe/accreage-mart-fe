@@ -225,6 +225,15 @@ export interface AppNotification {
   createdAt: string;
 }
 
+/** A paginated page of the caller's full notification history (the "view all" page). */
+export interface NotificationsPage {
+  items: AppNotification[];
+  page: number;
+  pageSize: number;
+  total: number;
+  hasMore: boolean;
+}
+
 export interface ContentPage {
   id: string;
   title: string;

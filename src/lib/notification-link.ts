@@ -16,10 +16,9 @@ export function resolveNotificationLink(
 
   switch (documentType) {
     case "Listing":
-      // No read-only seller-facing listing detail page exists yet — only the edit page
-      // does (src/app/seller/listings/[id]/edit). Point there until one is built.
-      if (role === "seller") return `/seller/listings/${id}/edit`;
-      if (role === "staff" || role === "admin") return `/admin/approvals/${id}`;
+      // get_listing (behind this page) already computes viewer server-side from the
+      // session — owner/staff/public all land here and see the right content and CTAs
+      // (e.g. staff gets an "Open in review" button), so every role shares one route.
       return `/marketplace/${id}`;
     case "Auction":
       // No role-specific auction detail route exists yet — the public detail
