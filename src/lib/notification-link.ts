@@ -16,7 +16,9 @@ export function resolveNotificationLink(
 
   switch (documentType) {
     case "Listing":
-      if (role === "seller") return `/seller/listings/${id}`;
+      // No read-only seller-facing listing detail page exists yet — only the edit page
+      // does (src/app/seller/listings/[id]/edit). Point there until one is built.
+      if (role === "seller") return `/seller/listings/${id}/edit`;
       if (role === "staff" || role === "admin") return `/admin/approvals/${id}`;
       return `/marketplace/${id}`;
     case "Auction":

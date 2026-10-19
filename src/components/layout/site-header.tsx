@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Bell, Leaf, Menu, LogOut, LayoutDashboard, UserRound } from "lucide-react";
 
-import { cn, initials } from "@/lib/utils";
+import { cn, initials, timeAgo } from "@/lib/utils";
 import { demoLogin } from "@/app/actions/auth";
 import { roleHome } from "@/lib/auth-routes";
 import { useCurrentUser } from "@/components/providers/current-user-provider";
@@ -141,9 +141,21 @@ export function SiteHeader() {
                             n.read ? "bg-muted" : "bg-accent"
                           )}
                         />
-                        <p className={cn("leading-snug", n.read && "text-muted-foreground")}>
-                          {n.subject || n.message}
-                        </p>
+                        <div className="min-w-0 flex-1">
+                          <p className={cn("leading-snug font-medium", n.read && "text-muted-foreground")}>
+                            {n.subject || n.message}
+                          </p>
+                          {n.message && n.message !== n.subject && (
+                            <p
+                              className={cn(
+                                "mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground"
+                              )}
+                            >
+                              {n.message}
+                            </p>
+                          )}
+                          <p className="mt-0.5 text-[11px] text-muted-foreground">{timeAgo(n.createdAt)}</p>
+                        </div>
                       </div>
                     );
                     return href ? (

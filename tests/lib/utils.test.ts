@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate, formatLKR, initials, timeRemaining } from "@/lib/utils";
+import { formatDate, formatLKR, initials, timeAgo, timeRemaining } from "@/lib/utils";
 
 /**
  * Smoke test proving the Vitest harness runs (Epic 01, Story 1.1).
@@ -27,6 +27,20 @@ describe("initials", () => {
   it("takes the first two word initials, uppercased", () => {
     expect(initials("Sunil Bandara")).toBe("SB");
     expect(initials("nadeesha perera silva")).toBe("NP");
+  });
+});
+
+describe("timeAgo", () => {
+  it("reports minutes, hours and days for recent timestamps", () => {
+    expect(timeAgo(new Date(Date.now() - 30000).toISOString())).toBe("just now");
+    expect(timeAgo(new Date(Date.now() - 5 * 60000).toISOString())).toBe("5m ago");
+    expect(timeAgo(new Date(Date.now() - 3 * 3600000).toISOString())).toBe("3h ago");
+    expect(timeAgo(new Date(Date.now() - 2 * 86400000).toISOString())).toBe("2d ago");
+  });
+
+  it("falls back to a plain date past a week out", () => {
+    const old = new Date(Date.now() - 10 * 86400000);
+    expect(timeAgo(old.toISOString())).toBe(formatDate(old.toISOString()));
   });
 });
 

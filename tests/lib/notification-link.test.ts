@@ -9,8 +9,8 @@ describe("resolveNotificationLink", () => {
   });
 
   describe("Listing", () => {
-    it("routes a seller to their own listing", () => {
-      expect(resolveNotificationLink("Listing", "lst-1", "seller")).toBe("/seller/listings/lst-1");
+    it("routes a seller to their own listing's edit page", () => {
+      expect(resolveNotificationLink("Listing", "lst-1", "seller")).toBe("/seller/listings/lst-1/edit");
     });
 
     it("routes staff and admin to the review page", () => {
