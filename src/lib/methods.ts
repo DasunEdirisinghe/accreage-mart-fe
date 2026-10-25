@@ -119,6 +119,21 @@ export enum NOTIFICATION_METHODS {
   MARK_ALL_SEEN = "accreage_mart.api.notifications.mark_all_seen",
 }
 
+export enum AUCTION_METHODS {
+  /** Auction + listing + full bid history + current highest bid. Guest. */
+  GET_DETAIL = "accreage_mart.api.auctions.get_auction_detail",
+  /** Place a bid as the logged-in buyer, under a DB-level lock. Buyer, account in good standing. */
+  PLACE_BID = "accreage_mart.api.auctions.place_bid",
+  /** Approve or reject a pending auction's listing. Staff/Admin only. */
+  REVIEW = "accreage_mart.api.auctions.review_auction",
+  /** Cancel a scheduled/live auction; reason required. Staff/Admin only. */
+  CANCEL = "accreage_mart.api.auctions.cancel_auction",
+  /** The caller's own auctions, paginated. Verified seller. */
+  LIST_MINE = "accreage_mart.api.auctions.list_seller_auctions",
+  /** Every auction the caller has bid on, paginated. Buyer, account in good standing. */
+  LIST_MY_BIDS = "accreage_mart.api.auctions.list_buyer_bids",
+}
+
 export enum MARKETPLACE_METHODS {
   /** Published listings of active sellers: filters, search, sort, paging. Guest. */
   LIST = "accreage_mart.api.marketplace.list_marketplace",

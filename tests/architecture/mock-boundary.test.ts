@@ -48,6 +48,10 @@ const REAL_PATHS = [
   "app/(site)/marketplace",
   "app/(site)/sellers",
   "app/(site)/page.tsx",
+  "app/(site)/auctions/[id]",
+  "app/seller/auctions",
+  "app/admin/auctions",
+  "app/buyer/bids",
 ];
 
 /** Real pages that still show one demo thing alongside real data. Each is listed with why. */
@@ -115,5 +119,6 @@ describe("the retired mock listing code is gone", () => {
     expect(files).not.toContain("lib/services/listings.ts");
     expect(files).not.toContain("components/shared/listing-card.tsx");
     expect(files).not.toContain("components/shared/listing-gallery.tsx");
+    expect(files).not.toContain("lib/services/auctions.ts");
   });
 });

@@ -4,8 +4,6 @@ import type {
   BuyerProfile,
   Category,
   MockListing,
-  Auction,
-  Bid,
   Order,
   PaymentProof,
   Review,
@@ -176,25 +174,6 @@ export const seedListings: MockListing[] = [
     image: "🚜", imageGradient: "from-slate-200 to-gray-100", createdAt: days(-14),
     gallery: ["from-slate-200 to-gray-100", "from-violet-200 to-purple-100", "from-emerald-200 to-teal-100"],
   },
-];
-
-/* ------------------------------- auctions ------------------------------- */
-export const seedAuctions: Auction[] = [
-  { id: "a-1", listingId: "l-3", minBid: 300, startTime: hours(-30), endTime: hours(6), status: "live", aiFairValue: 342 },
-  { id: "a-2", listingId: "l-6", minBid: 220, startTime: hours(-4), endTime: hours(20), status: "live", aiFairValue: 258 },
-  { id: "a-3", listingId: "l-8", minBid: 85, startTime: hours(30), endTime: hours(54), status: "scheduled", aiFairValue: 104 },
-  { id: "a-4", listingId: "l-13", minBid: 350, startTime: hours(-52), endTime: hours(-4), status: "ended", aiFairValue: 405, winnerBidId: "b-7" },
-];
-
-export const seedBids: Bid[] = [
-  { id: "b-1", auctionId: "a-1", buyerId: "bp-3", amount: 305, bidTime: hours(-26) },
-  { id: "b-2", auctionId: "a-1", buyerId: "bp-1", amount: 318, bidTime: hours(-20) },
-  { id: "b-3", auctionId: "a-1", buyerId: "bp-2", amount: 330, bidTime: hours(-9) },
-  { id: "b-4", auctionId: "a-1", buyerId: "bp-3", amount: 336, bidTime: hours(-2) },
-  { id: "b-5", auctionId: "a-2", buyerId: "bp-3", amount: 225, bidTime: hours(-3) },
-  { id: "b-6", auctionId: "a-2", buyerId: "bp-1", amount: 238, bidTime: hours(-1) },
-  { id: "b-7", auctionId: "a-4", buyerId: "bp-1", amount: 410, bidTime: hours(-6) },
-  { id: "b-8", auctionId: "a-4", buyerId: "bp-3", amount: 395, bidTime: hours(-10) },
 ];
 
 /* -------------------------------- orders -------------------------------- */

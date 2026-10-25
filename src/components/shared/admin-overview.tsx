@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Users,
   Tags,
-  Gavel,
   Receipt,
   ArrowRight,
   ClipboardCheck,
@@ -70,7 +69,6 @@ export function AdminOverview({
           sub={`${sellerCount} sellers · ${buyerCount} buyers`}
         />
         <StatCard label="Active listings" value={listingCounts ? String(listingCounts.published) : "–"} icon={Tags} sub={listingCounts ? `${listingCounts.pending} pending review` : "Loading…"} />
-        <StatCard label="Live auctions" value={String(db.auctions.filter((a) => a.status === "live").length)} icon={Gavel} sub={`${db.bids.length} total bids`} />
         <StatCard label="Platform GMV" value={formatLKR(gmv)} icon={Wallet} sub="Paid & completed orders" />
       </div>
 

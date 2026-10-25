@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BrainCircuit, Users, Wallet, Package, Gavel } from "lucide-react";
+import { BrainCircuit, Users, Wallet, Package } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -45,7 +45,6 @@ export function AdminReportsView({
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="GMV" value={formatLKR(gmv)} icon={Wallet} sub="Paid & completed" />
         <StatCard label="Orders" value={String(db.orders.length)} icon={Package} sub={`${db.orders.filter((o) => o.status === "completed").length} completed`} />
-        <StatCard label="Auction bids" value={String(db.bids.length)} icon={Gavel} sub={`${db.auctions.length} auctions`} />
         <StatCard label="Users" value={String(totalUsers)} icon={Users} sub={`${activeUsers} active`} />
       </div>
 

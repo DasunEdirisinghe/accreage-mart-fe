@@ -1,32 +1,45 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { CheckCircle2, XCircle, Gavel } from "lucide-react";
 import { toast } from "sonner";
 
-import { useDB } from "@/hooks/use-db";
-import { reviewAuction } from "@/lib/services/auctions";
+import { getReviewQueue } from "@/app/actions/listing-review";
+import { reviewAuction } from "@/app/actions/auctions";
 import { formatLKR, formatDateTime } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+import type { ReviewQueueItem } from "@/types/listing-review.type";
 
-const STATUS_VARIANT = {
-  pending: "warning",
-  scheduled: "info",
-  live: "accent",
-  ended: "muted",
-  rejected: "destructive",
-} as const;
-
+/** Pending Auction-type listings only — the same staff queue /admin/approvals reads,
+ * narrowed here so review decisions can go through api.auctions.review_auction (the
+ * auction-specific endpoint Epic 07 built), which /admin/approvals's generic
+ * approve/reject does not use. */
 export default function AuctionApprovalsPage() {
-  const db = useDB();
-  const pending = db.auctions.filter((a) => a.status === "pending");
+  const [pending, setPending] = React.useState<ReviewQueueItem[] | null>(null);
+
+  const load = React.useCallback(() => {
+    getReviewQueue({ status: "Pending Approval" }).then((data) => {
+      setPending(data.items.filter((item) => item.selling_type === "Auction"));
+    });
+  }, []);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
+
+  const decide = async (auctionName: string, decision: "approve" | "reject") => {
+    const res = await reviewAuction(auctionName, decision);
+    if (res.ok) {
+      toast.success(decision === "approve" ? "Auction approved & scheduled" : "Auction rejected");
+      load();
+    } else {
+      toast.error("Could not update the auction", { description: res.error });
+    }
+  };
 
   return (
     <>
@@ -35,28 +48,29 @@ export default function AuctionApprovalsPage() {
         description="Only staff-approved auctions are scheduled and become visible to buyers."
       />
 
-      {pending.length === 0 ? (
+      {pending === null ? null : pending.length === 0 ? (
         <EmptyState icon={Gavel} title="No auctions waiting" description="New auction requests from sellers will appear here." />
       ) : (
         <div className="mb-6 space-y-3">
-          {pending.map((a) => {
-            const listing = db.listings.find((l) => l.id === a.listingId)!;
-            const seller = db.sellerProfiles.find((s) => s.id === listing.sellerId);
+          {pending.map((item) => {
+            const auction = item.auction!;
             return (
-              <Card key={a.id}>
+              <Card key={item.name}>
                 <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold">{listing.image} {listing.title}</p>
+                    <Link href={`/auctions/${auction.name}`} className="font-semibold hover:underline">
+                      {item.title}
+                    </Link>
                     <p className="text-sm text-muted-foreground">
-                      {seller?.businessName} · min bid {formatLKR(a.minBid)}/{listing.unit} ·{" "}
-                      {formatDateTime(a.startTime)} → {formatDateTime(a.endTime)}
+                      {item.seller_business_name} · min bid {formatLKR(auction.min_bid)}/{item.unit} ·{" "}
+                      {formatDateTime(auction.start_time)} → {formatDateTime(auction.end_time)}
                     </p>
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <Button size="sm" onClick={() => { reviewAuction(a.id, "scheduled"); toast.success("Auction approved & scheduled"); }}>
+                    <Button size="sm" onClick={() => decide(auction.name, "approve")}>
                       <CheckCircle2 className="h-4 w-4" /> Approve
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => { reviewAuction(a.id, "rejected"); toast.info("Auction rejected"); }}>
+                    <Button size="sm" variant="destructive" onClick={() => decide(auction.name, "reject")}>
                       <XCircle className="h-4 w-4" /> Reject
                     </Button>
                   </div>
@@ -66,45 +80,6 @@ export default function AuctionApprovalsPage() {
           })}
         </div>
       )}
-
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="pl-4">Auction</TableHead>
-                <TableHead>Min bid</TableHead>
-                <TableHead>Window</TableHead>
-                <TableHead>Bids</TableHead>
-                <TableHead className="pr-4">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {db.auctions.map((a) => {
-                const listing = db.listings.find((l) => l.id === a.listingId)!;
-                const bids = db.bids.filter((b) => b.auctionId === a.id);
-                return (
-                  <TableRow key={a.id}>
-                    <TableCell className="max-w-56 pl-4">
-                      <Link href={`/auctions/${a.id}`} className="block truncate font-medium text-primary hover:underline">
-                        {listing.title}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{formatLKR(a.minBid)}/{listing.unit}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {formatDateTime(a.startTime)} → {formatDateTime(a.endTime)}
-                    </TableCell>
-                    <TableCell>{bids.length}</TableCell>
-                    <TableCell className="pr-4">
-                      <Badge variant={STATUS_VARIANT[a.status]}>{a.status}</Badge>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
     </>
   );
 }

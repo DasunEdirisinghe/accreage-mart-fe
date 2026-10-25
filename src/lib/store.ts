@@ -15,8 +15,6 @@ import {
   seedBuyerProfiles,
   seedCategories,
   seedListings,
-  seedAuctions,
-  seedBids,
   seedOrders,
   seedPaymentProofs,
   seedReviews,
@@ -33,8 +31,6 @@ import type {
   BuyerProfile,
   Category,
   MockListing,
-  Auction,
-  Bid,
   Order,
   PaymentProof,
   Review,
@@ -52,8 +48,6 @@ export interface DB {
   buyerProfiles: BuyerProfile[];
   categories: Category[];
   listings: MockListing[];
-  auctions: Auction[];
-  bids: Bid[];
   orders: Order[];
   paymentProofs: PaymentProof[];
   reviews: Review[];
@@ -72,8 +66,6 @@ function seed(): DB {
     buyerProfiles: [...seedBuyerProfiles],
     categories: [...seedCategories],
     listings: [...seedListings],
-    auctions: [...seedAuctions],
-    bids: [...seedBids],
     orders: [...seedOrders],
     paymentProofs: [...seedPaymentProofs],
     reviews: [...seedReviews],

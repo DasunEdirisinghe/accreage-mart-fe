@@ -38,6 +38,33 @@ vi.mock("@/app/actions/listing-review", () => ({
 vi.mock("@/app/actions/marketplace", () => ({
   getMarketplace: vi.fn(async () => ({ items: [], total: 0, page: 1, page_size: 4, has_more: false })),
 }));
+vi.mock("@/app/actions/auctions", () => ({
+  getAuctionDetail: vi.fn(async () => ({
+    auction: {
+      name: "a-1",
+      min_bid: 300,
+      start_time: "2020-01-01 10:00:00",
+      end_time: "2099-01-01 10:00:00",
+      status: "live",
+      cancel_reason: null,
+    },
+    listing: {
+      name: "l-1",
+      title: "Demo Auction Lot",
+      unit: "kg",
+      quantity_available: 500,
+      seller_business_name: "Demo Seller",
+      seller: "pub-1",
+    },
+    bids: [],
+    highest_bid: null,
+  })),
+  placeBid: vi.fn(async () => ({ ok: true })),
+  reviewAuction: vi.fn(async () => ({ ok: true })),
+  cancelAuction: vi.fn(async () => ({ ok: true })),
+  getSellerAuctions: vi.fn(async () => ({ items: [], total: 0, page: 1, page_size: 12, has_more: false })),
+  getBuyerBids: vi.fn(async () => ({ items: [], total: 0, page: 1, page_size: 12, has_more: false })),
+}));
 
 import AuctionsRedirectPage from "@/app/(site)/auctions/page";
 import AuctionDetailPage from "@/app/(site)/auctions/[id]/page";
@@ -58,9 +85,10 @@ import type { CurrentUserInfo } from "@/lib/current-user-info";
 
 /**
  * The demo (mock-store) pages. Their epics are not built yet, so they keep running on mock
- * orders, auctions and chats, which point at mock listings. These tests make sure those pages
- * still render, and that none of them links into the real marketplace with a mock listing id
- * (which would now be a dead link).
+ * orders and chats, which point at mock listings. These tests make sure those pages still
+ * render, and that none of them links into the real marketplace with a mock listing id (which
+ * would now be a dead link). Auctions/bids are real as of Epic 07 (mocked here via
+ * @/app/actions/auctions, same as marketplace/listing-review above).
  */
 
 const info = (role: "seller" | "buyer" | "staff" | "admin"): CurrentUserInfo => ({
@@ -103,9 +131,11 @@ describe("demo seller pages", () => {
     expect(marketplaceLinks(container)).toEqual([]);
   });
 
-  it("auctions", () => {
+  it("auctions", async () => {
+    const { getSellerAuctions } = await import("@/app/actions/auctions");
     const { container } = renderAs("seller", <SellerAuctionsPage />);
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    await waitFor(() => expect(getSellerAuctions).toHaveBeenCalled());
     expect(marketplaceLinks(container)).toEqual([]);
   });
 
@@ -138,9 +168,11 @@ describe("demo buyer pages", () => {
     expect(marketplaceLinks(container)).toEqual([]);
   });
 
-  it("bids", () => {
+  it("bids", async () => {
+    const { getBuyerBids } = await import("@/app/actions/auctions");
     const { container } = renderAs("buyer", <BuyerBidsPage />);
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    await waitFor(() => expect(getBuyerBids).toHaveBeenCalled());
     expect(marketplaceLinks(container)).toEqual([]);
   });
 
@@ -169,9 +201,10 @@ describe("demo order and auction detail pages", () => {
     expect(screen.getByText("Order not found")).toBeInTheDocument();
   });
 
-  it("the demo auction detail page", () => {
+  it("the auction detail page", async () => {
     const { container } = renderAs("buyer", <AuctionDetailPage />);
-    expect(container.textContent).toBeTruthy();
+    await waitFor(() => expect(container.textContent).toBeTruthy());
+    expect(screen.getByText("Demo Auction Lot")).toBeInTheDocument();
     expect(marketplaceLinks(container)).toEqual([]);
   });
 });
@@ -192,9 +225,11 @@ describe("demo admin pages", () => {
     expect(marketplaceLinks(container)).toEqual([]);
   });
 
-  it("the demo auction approvals page still renders", () => {
+  it("auction approvals", async () => {
+    const { getReviewQueue } = await import("@/app/actions/listing-review");
     const { container } = renderAs("staff", <AdminAuctionApprovalsPage />);
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    await waitFor(() => expect(getReviewQueue).toHaveBeenCalled());
     expect(marketplaceLinks(container)).toEqual([]);
   });
 });

@@ -3,13 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ChevronLeft, Gavel, BrainCircuit, Trophy, MapPin, ShieldCheck } from "lucide-react";
+import { ChevronLeft, Gavel, Trophy, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 
-import { useDB } from "@/hooks/use-db";
 import { useCurrentUser } from "@/components/providers/current-user-provider";
-import { getAuctionDetails, placeBid } from "@/lib/services/auctions";
-import { cn, formatLKR, formatDateTime } from "@/lib/utils";
+import { getAuctionDetail, placeBid } from "@/app/actions/auctions";
+import { formatLKR, formatDateTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,14 +24,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TimeLeft } from "@/components/shared/time-left";
+import type { AuctionDetailResponse } from "@/types/auctions.type";
 
 export default function AuctionDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const db = useDB();
-  const { user, buyerProfile } = useCurrentUser();
+  const { user } = useCurrentUser();
+  const [details, setDetails] = React.useState<AuctionDetailResponse | null>(null);
+  const [loaded, setLoaded] = React.useState(false);
   const [amount, setAmount] = React.useState("");
 
-  const details = getAuctionDetails(db, id);
+  const load = React.useCallback(() => {
+    getAuctionDetail(id).then((data) => {
+      setDetails(data);
+      setLoaded(true);
+    });
+  }, [id]);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
+
+  if (!loaded) return null;
 
   if (!details) {
     return (
@@ -45,22 +57,16 @@ export default function AuctionDetailPage() {
     );
   }
 
-  const { auction, listing, bids, highestBid } = details;
-  const seller = db.sellerProfiles.find((s) => s.id === listing.sellerId);
+  const { auction, listing, bids, highest_bid: highestBid } = details;
   const isLive = auction.status === "live";
-  const winnerBid = auction.winnerBidId ? db.bids.find((b) => b.id === auction.winnerBidId) : null;
-  const winnerBuyer = winnerBid ? db.buyerProfiles.find((b) => b.id === winnerBid.buyerId) : null;
-  const myHighest =
-    buyerProfile && bids.length
-      ? bids.find((b) => b.buyerId === buyerProfile.id)
-      : null;
+  const myHighest = user && bids.length ? bids.find((b) => b.bidder === user.email) : null;
 
-  const handleBid = () => {
-    if (!buyerProfile) return;
-    const res = placeBid(auction.id, buyerProfile.id, Number(amount));
+  const handleBid = async () => {
+    const res = await placeBid(auction.name, Number(amount));
     if (res.ok) {
       toast.success(`Bid of ${formatLKR(Number(amount))}/${listing.unit} placed`);
       setAmount("");
+      load();
     } else {
       toast.error("Bid rejected", { description: res.error });
     }
@@ -76,13 +82,8 @@ export default function AuctionDetailPage() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_400px]">
         <div className="space-y-6">
-          <div
-            className={cn(
-              "relative flex h-56 items-center justify-center rounded-xl bg-gradient-to-br text-7xl sm:h-72",
-              listing.imageGradient
-            )}
-          >
-            {listing.image}
+          <div className="relative flex h-56 items-center justify-center rounded-xl bg-muted sm:h-72">
+            <ImageOff className="h-10 w-10 text-muted-foreground" />
             <Badge
               variant={isLive ? "accent" : auction.status === "ended" ? "muted" : "info"}
               className="absolute left-4 top-4"
@@ -90,33 +91,37 @@ export default function AuctionDetailPage() {
               {isLive && (
                 <span className="mr-1.5 inline-flex h-2 w-2 animate-pulse rounded-full bg-accent-foreground" />
               )}
-              {isLive ? "LIVE" : auction.status === "ended" ? "Ended" : "Scheduled"}
+              {isLive
+                ? "LIVE"
+                : auction.status === "ended"
+                  ? "Ended"
+                  : auction.status === "cancelled"
+                    ? "Cancelled"
+                    : "Scheduled"}
             </Badge>
           </div>
 
           <div>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{listing.title}</h1>
-            <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" /> {listing.location}, {listing.district} · Lot size{" "}
-              {listing.quantityAvailable.toLocaleString()} {listing.unit}
+            <p className="mt-1 text-sm text-muted-foreground">
+              Lot size {listing.quantity_available.toLocaleString()} {listing.unit}
             </p>
-            {seller && (
-              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-                {seller.verified && <ShieldCheck className="h-4 w-4 text-primary" />}
-                {seller.businessName} · trust score {seller.trustScore.toFixed(1)}
-              </p>
+            {listing.seller_business_name && (
+              <p className="mt-1 text-sm text-muted-foreground">{listing.seller_business_name}</p>
             )}
           </div>
 
-          <p className="text-muted-foreground">{listing.description}</p>
+          {auction.status === "cancelled" && auction.cancel_reason && (
+            <p className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              This auction was cancelled. Reason: {auction.cancel_reason}
+            </p>
+          )}
 
           {/* bid history */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Bid history</CardTitle>
-              <CardDescription>
-                All bids are binding. Identities are partially masked for fairness.
-              </CardDescription>
+              <CardDescription>All bids are binding.</CardDescription>
             </CardHeader>
             <CardContent>
               {bids.length === 0 ? (
@@ -134,28 +139,22 @@ export default function AuctionDetailPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bids.map((b, i) => {
-                      const bp = db.buyerProfiles.find((x) => x.id === b.buyerId);
-                      const masked = bp
-                        ? `${bp.businessName.slice(0, 3)}•••• (${bp.buyerType})`
-                        : "Buyer ••••";
-                      return (
-                        <TableRow key={b.id}>
-                          <TableCell className="font-medium">
-                            {buyerProfile?.id === b.buyerId ? "You" : masked}
-                          </TableCell>
-                          <TableCell className="font-semibold text-primary">
-                            {formatLKR(b.amount)}/{listing.unit}
-                          </TableCell>
-                          <TableCell className="hidden text-muted-foreground sm:table-cell">
-                            {formatDateTime(b.bidTime)}
-                          </TableCell>
-                          <TableCell>
-                            {i === 0 && <Badge variant="success">Highest</Badge>}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                    {bids.map((b, i) => (
+                      <TableRow key={b.name}>
+                        <TableCell className="font-medium">
+                          {user?.email === b.bidder ? "You" : "Buyer ••••"}
+                        </TableCell>
+                        <TableCell className="font-semibold text-primary">
+                          {formatLKR(b.amount)}/{listing.unit}
+                        </TableCell>
+                        <TableCell className="hidden text-muted-foreground sm:table-cell">
+                          {formatDateTime(b.bid_time)}
+                        </TableCell>
+                        <TableCell>
+                          {i === 0 && <Badge variant="success">Highest</Badge>}
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               )}
@@ -165,7 +164,7 @@ export default function AuctionDetailPage() {
 
         {/* bid panel */}
         <div className="space-y-4">
-          <Card className={cn(isLive && "border-accent/60")}>
+          <Card className={isLive ? "border-accent/60" : undefined}>
             <CardContent className="space-y-4 p-5">
               <div className="flex items-center justify-between">
                 <div>
@@ -173,7 +172,7 @@ export default function AuctionDetailPage() {
                     {highestBid ? "Current highest bid" : "Starting bid"}
                   </p>
                   <p className="text-3xl font-extrabold text-primary">
-                    {formatLKR(highestBid ? highestBid.amount : auction.minBid)}
+                    {formatLKR(highestBid ? highestBid.amount : auction.min_bid)}
                     <span className="text-sm font-normal text-muted-foreground">/{listing.unit}</span>
                   </p>
                 </div>
@@ -181,41 +180,35 @@ export default function AuctionDetailPage() {
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground">Closes in</p>
                     <p className="font-bold text-accent-foreground">
-                      <TimeLeft endTime={auction.endTime} />
+                      <TimeLeft endTime={auction.end_time} />
                     </p>
                   </div>
                 )}
               </div>
-
-              {auction.aiFairValue && (
-                <p className="flex items-center gap-1.5 rounded-md bg-secondary p-2.5 text-xs">
-                  <BrainCircuit className="h-4 w-4 shrink-0 text-primary" />
-                  AI fair-value estimate: {formatLKR(auction.aiFairValue)}/{listing.unit} (Prophet
-                  forecast)
-                </p>
-              )}
 
               <Separator />
 
               {auction.status === "ended" ? (
                 <div className="rounded-md bg-secondary p-4 text-center">
                   <Trophy className="mx-auto mb-2 h-6 w-6 text-accent" />
-                  {winnerBid && winnerBuyer ? (
+                  {highestBid ? (
                     <>
-                      <p className="font-semibold">
-                        Won by {winnerBuyer.businessName}
-                      </p>
+                      <p className="font-semibold">Won at {formatLKR(highestBid.amount)}/{listing.unit}</p>
                       <p className="text-sm text-muted-foreground">
-                        at {formatLKR(winnerBid.amount)}/{listing.unit}
+                        {user?.email === highestBid.bidder ? "You won this auction." : ""}
                       </p>
                     </>
                   ) : (
                     <p className="text-sm text-muted-foreground">Auction closed with no winning bid.</p>
                   )}
                 </div>
+              ) : auction.status === "cancelled" ? (
+                <p className="rounded-md bg-secondary p-4 text-center text-sm">
+                  This auction has been cancelled.
+                </p>
               ) : auction.status === "scheduled" ? (
                 <p className="rounded-md bg-secondary p-4 text-center text-sm">
-                  Bidding opens {formatDateTime(auction.startTime)}
+                  Bidding opens {formatDateTime(auction.start_time)}
                 </p>
               ) : user?.role === "buyer" ? (
                 <div className="space-y-3">
@@ -223,7 +216,7 @@ export default function AuctionDetailPage() {
                     <Label>Your bid (LKR per {listing.unit})</Label>
                     <Input
                       type="number"
-                      placeholder={String((highestBid ? highestBid.amount : auction.minBid) + 5)}
+                      placeholder={String((highestBid ? highestBid.amount : auction.min_bid) + 5)}
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                     />
@@ -234,7 +227,7 @@ export default function AuctionDetailPage() {
                   {myHighest && (
                     <p className="text-center text-xs text-muted-foreground">
                       Your best bid: {formatLKR(myHighest.amount)}/{listing.unit}
-                      {highestBid?.buyerId === buyerProfile?.id && ", you're leading!"}
+                      {highestBid?.bidder === user?.email && ", you're leading!"}
                     </p>
                   )}
                 </div>
@@ -253,15 +246,15 @@ export default function AuctionDetailPage() {
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Starts</span>
-                <span className="font-medium">{formatDateTime(auction.startTime)}</span>
+                <span className="font-medium">{formatDateTime(auction.start_time)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Ends</span>
-                <span className="font-medium">{formatDateTime(auction.endTime)}</span>
+                <span className="font-medium">{formatDateTime(auction.end_time)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Minimum bid</span>
-                <span className="font-medium">{formatLKR(auction.minBid)}/{listing.unit}</span>
+                <span className="font-medium">{formatLKR(auction.min_bid)}/{listing.unit}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Total bids</span>

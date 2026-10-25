@@ -83,25 +83,28 @@ export interface MockListing {
   createdAt: string;
 }
 
-export type AuctionStatus = "pending" | "scheduled" | "live" | "ended" | "rejected";
+/**
+ * Real shapes, mirroring accreage_mart.api.auctions's responses (Epic 07). `status` is never
+ * stored — the backend derives it from the listing status + the clock + `cancelled`
+ * (derive_auction_status()); `cancelled` takes priority over timing.
+ */
+export type AuctionStatus = "pending" | "scheduled" | "live" | "ended" | "rejected" | "cancelled";
 
 export interface Auction {
-  id: string;
-  listingId: string;
-  minBid: number; // LKR per unit
-  startTime: string;
-  endTime: string;
+  name: string;
+  min_bid: number; // LKR per unit
+  start_time: string;
+  end_time: string;
   status: AuctionStatus;
-  aiFairValue?: number;
-  winnerBidId?: string;
+  cancel_reason: string | null;
 }
 
 export interface Bid {
-  id: string;
-  auctionId: string;
-  buyerId: string;
+  name: string;
+  auction: string;
+  bidder: string; // User (email) — never a Buyer Profile id
   amount: number;
-  bidTime: string;
+  bid_time: string;
 }
 
 export type OrderStatus =

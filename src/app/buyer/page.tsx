@@ -1,10 +1,12 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { Package, Gavel, Star, Wallet, ArrowRight } from "lucide-react";
 
 import { useDB } from "@/hooks/use-db";
 import { useCurrentUser } from "@/components/providers/current-user-provider";
+import { getBuyerBids } from "@/app/actions/auctions";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_VARIANT } from "@/lib/services/orders";
 import { formatLKR, formatDate } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
@@ -16,19 +18,22 @@ import { Button } from "@/components/ui/button";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import type { BuyerBidItem } from "@/types/auctions.type";
 
 export default function BuyerDashboard() {
   const db = useDB();
   const { user, buyerProfile } = useCurrentUser();
+  const [myBids, setMyBids] = React.useState<BuyerBidItem[]>([]);
+
+  React.useEffect(() => {
+    getBuyerBids().then((data) => setMyBids(data?.items ?? []));
+  }, []);
+
   if (!buyerProfile) return null;
 
   const myOrders = db.orders.filter((o) => o.buyerId === buyerProfile.id);
   const active = myOrders.filter((o) => !["completed", "cancelled"].includes(o.status));
-  const myBids = db.bids.filter((b) => b.buyerId === buyerProfile.id);
-  const liveBids = myBids.filter((b) => {
-    const a = db.auctions.find((x) => x.id === b.auctionId);
-    return a?.status === "live";
-  });
+  const liveBids = myBids.filter((b) => b.status === "live");
   const spend = myOrders
     .filter((o) => ["paid", "completed"].includes(o.status))
     .reduce((s, o) => s + o.totalPrice, 0);
@@ -113,38 +118,27 @@ export default function BuyerDashboard() {
                 You haven&apos;t placed any bids yet.
               </p>
             )}
-            {Array.from(new Set(myBids.map((b) => b.auctionId))).map((aid) => {
-              const a = db.auctions.find((x) => x.id === aid)!;
-              const listing = db.listings.find((l) => l.id === a.listingId)!;
-              const highest = db.bids
-                .filter((b) => b.auctionId === aid)
-                .sort((x, y) => y.amount - x.amount)[0];
-              const mine = db.bids
-                .filter((b) => b.auctionId === aid && b.buyerId === buyerProfile.id)
-                .sort((x, y) => y.amount - x.amount)[0];
-              const leading = highest?.buyerId === buyerProfile.id;
-              return (
-                <Link
-                  key={aid}
-                  href={`/auctions/${aid}`}
-                  className="flex items-center justify-between gap-3 rounded-md border p-3 transition-colors hover:bg-secondary/50"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{listing.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Your bid {formatLKR(mine.amount)}/{listing.unit}
-                    </p>
-                  </div>
-                  {a.status === "live" ? (
-                    <Badge variant={leading ? "success" : "warning"}>
-                      {leading ? "Leading" : "Outbid"}
-                    </Badge>
-                  ) : (
-                    <Badge variant="muted">{a.status}</Badge>
-                  )}
-                </Link>
-              );
-            })}
+            {myBids.map((b) => (
+              <Link
+                key={b.name}
+                href={`/auctions/${b.name}`}
+                className="flex items-center justify-between gap-3 rounded-md border p-3 transition-colors hover:bg-secondary/50"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{b.listing.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Your bid {b.my_highest_bid ? `${formatLKR(b.my_highest_bid.amount)}/${b.listing.unit}` : "-"}
+                  </p>
+                </div>
+                {b.status === "live" ? (
+                  <Badge variant={b.leading ? "success" : "warning"}>
+                    {b.leading ? "Leading" : "Outbid"}
+                  </Badge>
+                ) : (
+                  <Badge variant="muted">{b.status}</Badge>
+                )}
+              </Link>
+            ))}
           </CardContent>
         </Card>
       </div>

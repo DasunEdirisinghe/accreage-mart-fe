@@ -18,6 +18,8 @@ export interface ReviewQueueItem {
   previous_rejections: number;
   resubmitted: boolean;
   auction: {
+    /** The Auction doctype's own name — distinct from this item's Listing `name`. */
+    name: string;
     min_bid: number;
     start_time: string;
     end_time: string;
