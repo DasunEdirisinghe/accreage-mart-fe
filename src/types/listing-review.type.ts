@@ -24,6 +24,8 @@ export interface ReviewQueueItem {
     start_time: string;
     end_time: string;
     start_passed: boolean;
+    end_passed: boolean;
+    cancelled: boolean;
   } | null;
 }
 

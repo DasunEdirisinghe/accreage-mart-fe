@@ -26,6 +26,9 @@ import {
 import { TimeLeft } from "@/components/shared/time-left";
 import type { AuctionDetailResponse } from "@/types/auctions.type";
 
+/** Poll every 10-15s while the auction is live. */
+const POLL_INTERVAL_MS = 12000;
+
 export default function AuctionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useCurrentUser();
@@ -33,6 +36,7 @@ export default function AuctionDetailPage() {
   const [loaded, setLoaded] = React.useState(false);
   const [amount, setAmount] = React.useState("");
 
+  // First load: shows the page's own "not found" / loading states.
   const load = React.useCallback(() => {
     getAuctionDetail(id).then((data) => {
       setDetails(data);
@@ -40,9 +44,25 @@ export default function AuctionDetailPage() {
     });
   }, [id]);
 
+  // Background refresh: never flips a loading flag and never nulls out `details` on a
+  // transient failure, so a poll can only ever update numbers in place, never flash/remount.
+  const refresh = React.useCallback(() => {
+    getAuctionDetail(id).then((data) => {
+      if (data) setDetails(data);
+    });
+  }, [id]);
+
   React.useEffect(() => {
     load();
   }, [load]);
+
+  const isLive = details?.auction.status === "live";
+
+  React.useEffect(() => {
+    if (!isLive) return;
+    const timer = setInterval(refresh, POLL_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [isLive, refresh]);
 
   if (!loaded) return null;
 
@@ -58,15 +78,24 @@ export default function AuctionDetailPage() {
   }
 
   const { auction, listing, bids, highest_bid: highestBid } = details;
-  const isLive = auction.status === "live";
   const myHighest = user && bids.length ? bids.find((b) => b.bidder === user.email) : null;
 
+  // Mirrors Story 7.1's server-side rule: must simply exceed the current highest (or min_bid
+  // if there are no bids yet), no minimum raise.
+  const minRequired = highestBid ? highestBid.amount : auction.min_bid;
+  const amountNumber = amount.trim() === "" ? null : Number(amount);
+  const bidError =
+    amountNumber !== null && (Number.isNaN(amountNumber) || amountNumber <= minRequired)
+      ? `Your bid must be more than ${formatLKR(minRequired)}/${listing.unit}.`
+      : null;
+
   const handleBid = async () => {
-    const res = await placeBid(auction.name, Number(amount));
+    if (amountNumber === null || bidError) return;
+    const res = await placeBid(auction.name, amountNumber);
     if (res.ok) {
-      toast.success(`Bid of ${formatLKR(Number(amount))}/${listing.unit} placed`);
+      toast.success(`Bid of ${formatLKR(amountNumber)}/${listing.unit} placed`);
       setAmount("");
-      load();
+      refresh();
     } else {
       toast.error("Bid rejected", { description: res.error });
     }
@@ -213,15 +242,28 @@ export default function AuctionDetailPage() {
               ) : user?.role === "buyer" ? (
                 <div className="space-y-3">
                   <div className="space-y-2">
-                    <Label>Your bid (LKR per {listing.unit})</Label>
+                    <Label htmlFor="bid-amount">Your bid (LKR per {listing.unit})</Label>
                     <Input
+                      id="bid-amount"
                       type="number"
-                      placeholder={String((highestBid ? highestBid.amount : auction.min_bid) + 5)}
+                      placeholder={String(minRequired + 5)}
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
+                      aria-invalid={!!bidError}
                     />
+                    {bidError && (
+                      <p role="alert" className="text-xs text-destructive">
+                        {bidError}
+                      </p>
+                    )}
                   </div>
-                  <Button className="w-full" size="lg" variant="accent" onClick={handleBid} disabled={!amount}>
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    variant="accent"
+                    onClick={handleBid}
+                    disabled={!amount || !!bidError}
+                  >
                     <Gavel className="h-4 w-4" /> Place bid
                   </Button>
                   {myHighest && (

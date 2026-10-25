@@ -58,7 +58,7 @@ describe("ReviewQueueView: rows", () => {
             title: "Banana lot",
             selling_type: "Auction",
             price_per_unit: null,
-            auction: { name: "a-1", min_bid: 180, start_time: "2099-01-01 10:00:00", end_time: "2099-01-01 22:00:00", start_passed: false },
+            auction: { name: "a-1", min_bid: 180, start_time: "2099-01-01 10:00:00", end_time: "2099-01-01 22:00:00", start_passed: false, end_passed: false, cancelled: false },
           }),
         ])}
         tab="pending"
@@ -101,7 +101,7 @@ describe("ReviewQueueView: rows", () => {
           makeQueueItem({
             selling_type: "Auction",
             price_per_unit: null,
-            auction: { name: "a-2", min_bid: 180, start_time: "2020-01-01 10:00:00", end_time: "2020-01-01 22:00:00", start_passed: true },
+            auction: { name: "a-2", min_bid: 180, start_time: "2020-01-01 10:00:00", end_time: "2020-01-01 22:00:00", start_passed: true, end_passed: true, cancelled: false },
           }),
         ])}
         tab="pending"
@@ -124,7 +124,7 @@ describe("ReviewQueueView: rows", () => {
             name: "LST-2",
             selling_type: "Auction",
             price_per_unit: null,
-            auction: { name: "a-3", min_bid: 1, start_time: "2020-01-01 10:00:00", end_time: "2020-01-01 22:00:00", start_passed: true },
+            auction: { name: "a-3", min_bid: 1, start_time: "2020-01-01 10:00:00", end_time: "2020-01-01 22:00:00", start_passed: true, end_passed: true, cancelled: false },
           }),
         ])}
         tab="pending"
