@@ -24,8 +24,8 @@ describe("auction wording", () => {
 
   it("says bidding opens soon only while bidding is off", () => {
     const auction = makeAuctionCard().auction!;
-    expect(biddingNote(auction)).toBe("Bidding opens soon");
-    expect(biddingNote({ ...auction, bidding_enabled: true })).toBeNull();
+    expect(biddingNote(auction)).toBeNull();
+    expect(biddingNote({ ...auction, bidding_enabled: false })).toBe("Bidding opens soon");
   });
 });
 

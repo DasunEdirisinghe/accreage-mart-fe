@@ -10,6 +10,8 @@ export interface MarketplaceSeller {
 }
 
 export interface MarketplaceAuction {
+  /** The Auction doc's own name (not the listing's) — the id /auctions/[id] expects. */
+  name: string;
   min_bid: number;
   start_time: string;
   end_time: string;

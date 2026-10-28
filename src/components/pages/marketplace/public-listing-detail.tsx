@@ -135,7 +135,7 @@ export function PublicListingDetail({ data }: { data: PublicListingResponse }) {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
           <Card>
             <CardContent className="space-y-4 p-5">
               {isAuction && auction ? (

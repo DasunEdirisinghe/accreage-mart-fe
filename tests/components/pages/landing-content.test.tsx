@@ -33,10 +33,10 @@ describe("LandingContent", () => {
     expect(screen.getByRole("link", { name: /Embul Kesel/ })).toHaveAttribute("href", "/marketplace?category=cat-banana");
   });
 
-  it("shows real auctions in the teaser, linking to their listing pages", () => {
+  it("shows real auctions in the teaser, linking to their bidding pages", () => {
     render(<LandingContent featured={[]} auctions={[makeAuctionCard("live")]} categories={categories} categoryCount={48} />);
     const link = screen.getByRole("link", { name: /Embul Kesel lot/ });
-    expect(link).toHaveAttribute("href", "/marketplace/LST-00002");
+    expect(link).toHaveAttribute("href", "/auctions/AUC-00002");
     expect(link).toHaveTextContent("Live now");
     expect(link).toHaveTextContent("Rs. 180");
   });

@@ -1,6 +1,7 @@
 /** Backend response shapes for the auction/bid endpoints (api/auctions.py, Epic 07). */
 
 import type { Auction, Bid } from "@/lib/types";
+import type { MarketplaceSeller } from "@/types/marketplace.type";
 
 export interface AuctionListingSummary {
   name: string;
@@ -8,12 +9,23 @@ export interface AuctionListingSummary {
   unit: string;
 }
 
-/** The listing as returned alongside an auction in get_auction_detail. */
+/** The listing as returned alongside an auction in get_auction_detail — the same facts as the
+ * public marketplace detail page. */
 export interface AuctionDetailListing extends AuctionListingSummary {
+  description: string;
+  category: { name: string; title: string; area: string };
   quantity_available: number;
-  seller_business_name: string | null;
-  /** Opaque public id — the seller's real id (email) is never exposed. */
-  seller: string;
+  district: string;
+  location: string;
+  latitude: number | null;
+  longitude: number | null;
+  map_url: string | null;
+  organic: boolean;
+  certification: string | null;
+  images: { url: string; is_cover: boolean }[];
+  cover_image: string | null;
+  created: string;
+  seller: MarketplaceSeller & { district: string; verified: boolean };
 }
 
 /** api.auctions.get_auction_detail's response. */

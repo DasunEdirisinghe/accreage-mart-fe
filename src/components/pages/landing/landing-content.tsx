@@ -110,7 +110,11 @@ export function LandingContent({ featured, auctions, categories, categoryCount }
               Auctions
             </h2>
             {auctions.slice(0, 2).map((listing) => (
-              <Link key={listing.name} href={`/marketplace/${listing.name}`} className="block">
+              <Link
+                key={listing.name}
+                href={listing.auction ? `/auctions/${listing.auction.name}` : `/marketplace/${listing.name}`}
+                className="block"
+              >
                 <Card className="transition-shadow hover:shadow-md">
                   <CardContent className="flex items-center gap-4 p-4">
                     <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">

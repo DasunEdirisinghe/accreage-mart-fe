@@ -58,6 +58,28 @@ const EMPTY: ListingFormValues = {
   price_suggestion_horizon: "",
 };
 
+/** Form field order, top to bottom, for scroll-to-first-error. */
+const FIELD_ORDER: (keyof ListingFormValues)[] = [
+  "selling_type",
+  "category",
+  "title",
+  "description",
+  "unit",
+  "quantity_available",
+  "min_order_qty",
+  "low_stock_level",
+  "district",
+  "location",
+  "latitude",
+  "certification",
+  "images",
+  "min_bid",
+  "start_time",
+  "end_time",
+  "auction_terms_acknowledged",
+  "price_per_unit",
+];
+
 const OPEN: EditRestriction = {
   canEdit: true,
   termsLocked: false,
@@ -91,37 +113,70 @@ export function ListingForm({
   );
   const [state, formAction, pending] = React.useActionState<ListingFormState, FormData>(action, {});
   const [values, setValues] = React.useState<ListingFormValues>(initial);
+  const [clearedErrors, setClearedErrors] = React.useState<Set<keyof ListingFormValues>>(new Set());
 
-  const set = <K extends keyof ListingFormValues>(key: K, value: ListingFormValues[K]) =>
+  React.useEffect(() => {
+    setClearedErrors(new Set());
+  }, [state]);
+
+  const clearError = (key: keyof ListingFormValues) =>
+    setClearedErrors((current) => (current.has(key) ? current : new Set(current).add(key)));
+
+  const set = <K extends keyof ListingFormValues>(key: K, value: ListingFormValues[K]) => {
+    clearError(key);
     setValues((current) => ({ ...current, [key]: value }));
+  };
   const onText =
     (key: keyof ListingFormValues) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       set(key, event.target.value as never);
   /** The price / min bid fields: typing by hand means the AI suggestion is no longer in use. */
   const onPriceText =
-    (key: "price_per_unit" | "min_bid") => (event: React.ChangeEvent<HTMLInputElement>) =>
+    (key: "price_per_unit" | "min_bid") => (event: React.ChangeEvent<HTMLInputElement>) => {
+      clearError(key);
       setValues((current) => ({
         ...current,
         [key]: event.target.value,
         price_suggestion_used: false,
         price_suggestion_horizon: "",
       }));
+    };
 
   const errors = state.errors ?? {};
-  const first = (key: keyof ListingFormValues) => errors[key]?.[0];
+  const first = (key: keyof ListingFormValues) => (clearedErrors.has(key) ? undefined : errors[key]?.[0]);
+
+  React.useEffect(() => {
+    if (!state.errors) return;
+    for (const field of FIELD_ORDER) {
+      if (!errors[field]?.[0]) continue;
+      const el = document.getElementById(field);
+      if (el && typeof el.scrollIntoView === "function") {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        break;
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.errors]);
 
   const isAuction = values.selling_type === "Auction";
   const editing = mode === "edit";
   const minStart = React.useMemo(() => siteNow(), []);
 
-  const useSuggestion = (value: number, horizon: PriceHorizon) =>
+  const useSuggestion = (value: number, horizon: PriceHorizon) => {
+    clearError(isAuction ? "min_bid" : "price_per_unit");
     setValues((current) => ({
       ...current,
       [isAuction ? "min_bid" : "price_per_unit"]: String(value),
       price_suggestion_used: true,
       price_suggestion_horizon: horizon,
     }));
+    if (isAuction) {
+      const el = document.getElementById("min_bid");
+      if (el && typeof el.scrollIntoView === "function") {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  };
 
   const timeIssues =
     isAuction && values.start_time && values.end_time && !restriction.termsLocked
@@ -359,7 +414,10 @@ export function ListingForm({
             <LocationPicker
               latitude={values.latitude}
               longitude={values.longitude}
-              onChange={(latitude, longitude) => setValues((c) => ({ ...c, latitude, longitude }))}
+              onChange={(latitude, longitude) => {
+                clearError("latitude");
+                setValues((c) => ({ ...c, latitude, longitude }));
+              }}
               error={first("latitude")}
             />
 
@@ -515,7 +573,7 @@ export function ListingForm({
           onUse={useSuggestion}
         />
 
-        <Card>
+        <Card className="lg:sticky lg:top-20">
           <CardContent className="space-y-3 p-5">
             <p className="text-sm text-muted-foreground">
               {editing

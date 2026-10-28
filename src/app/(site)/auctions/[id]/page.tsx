@@ -3,12 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ChevronLeft, Gavel, Trophy, ImageOff } from "lucide-react";
+import { BadgeCheck, ChevronLeft, ExternalLink, Gavel, MapPin, ShieldCheck, Trophy } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCurrentUser } from "@/components/providers/current-user-provider";
 import { getAuctionDetail, placeBid } from "@/app/actions/auctions";
-import { formatLKR, formatDateTime } from "@/lib/utils";
+import { PublicListingGallery } from "@/components/pages/marketplace/public-listing-gallery";
+import { RatingStars } from "@/components/shared/rating-stars";
+import { cn, formatLKR, formatDateTime, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,6 +27,17 @@ import {
 } from "@/components/ui/table";
 import { TimeLeft } from "@/components/shared/time-left";
 import type { AuctionDetailResponse } from "@/types/auctions.type";
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="text-xs text-muted-foreground">{label}</div>
+        <div className="font-semibold">{value}</div>
+      </CardContent>
+    </Card>
+  );
+}
 
 /** Poll every 10-15s while the auction is live. */
 const POLL_INTERVAL_MS = 12000;
@@ -109,35 +122,62 @@ export default function AuctionDetailPage() {
         </Link>
       </Button>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_400px]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
         <div className="space-y-6">
-          <div className="relative flex h-56 items-center justify-center rounded-xl bg-muted sm:h-72">
-            <ImageOff className="h-10 w-10 text-muted-foreground" />
-            <Badge
-              variant={isLive ? "accent" : auction.status === "ended" ? "muted" : "info"}
-              className="absolute left-4 top-4"
-            >
-              {isLive && (
-                <span className="mr-1.5 inline-flex h-2 w-2 animate-pulse rounded-full bg-accent-foreground" />
-              )}
-              {isLive
-                ? "LIVE"
-                : auction.status === "ended"
-                  ? "Ended"
-                  : auction.status === "cancelled"
-                    ? "Cancelled"
-                    : "Scheduled"}
-            </Badge>
-          </div>
+          <PublicListingGallery images={listing.images} title={listing.title} />
 
           <div>
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">{listing.category.title}</Badge>
+              <Badge variant="accent">
+                <Gavel className="mr-1 h-3 w-3" /> Auction listing
+              </Badge>
+              <Badge
+                variant={isLive ? "accent" : auction.status === "ended" ? "muted" : "info"}
+              >
+                {isLive && (
+                  <span className="mr-1.5 inline-flex h-2 w-2 animate-pulse rounded-full bg-accent-foreground" />
+                )}
+                {isLive
+                  ? "LIVE"
+                  : auction.status === "ended"
+                    ? "Ended"
+                    : auction.status === "cancelled"
+                      ? "Cancelled"
+                      : "Scheduled"}
+              </Badge>
+              {listing.organic && <Badge variant="success">Organic</Badge>}
+              {listing.organic && listing.certification && (
+                <Badge variant="info">
+                  <BadgeCheck className="mr-1 h-3 w-3" /> {listing.certification}
+                </Badge>
+              )}
+            </div>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{listing.title}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Lot size {listing.quantity_available.toLocaleString()} {listing.unit}
-            </p>
-            {listing.seller_business_name && (
-              <p className="mt-1 text-sm text-muted-foreground">{listing.seller_business_name}</p>
-            )}
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" /> {listing.location}, {listing.district} district
+              </span>
+              {listing.map_url && (
+                <a
+                  href={listing.map_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-primary underline"
+                >
+                  View on Google Maps <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+              <span>listed {formatDate(listing.created)}</span>
+            </div>
+          </div>
+
+          <p className="whitespace-pre-line leading-relaxed text-muted-foreground">{listing.description}</p>
+
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <Fact label="Lot" value={`${listing.quantity_available.toLocaleString()} ${listing.unit}`} />
+            <Fact label="Unit" value={listing.unit} />
+            <Fact label="Type" value="Auction" />
           </div>
 
           {auction.status === "cancelled" && auction.cancel_reason && (
@@ -192,8 +232,8 @@ export default function AuctionDetailPage() {
         </div>
 
         {/* bid panel */}
-        <div className="space-y-4">
-          <Card className={isLive ? "border-accent/60" : undefined}>
+        <div className="space-y-4 lg:sticky lg:top-20 lg:flex lg:flex-col lg:self-start lg:space-y-0 lg:gap-4">
+          <Card className={cn(isLive ? "border-accent/60" : undefined, "lg:order-2")}>
             <CardContent className="space-y-4 p-5">
               <div className="flex items-center justify-between">
                 <div>
@@ -281,7 +321,7 @@ export default function AuctionDetailPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="lg:order-1">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Auction details</CardTitle>
             </CardHeader>
@@ -307,6 +347,30 @@ export default function AuctionDetailPage() {
                 The highest valid bid at closing wins. Winning buyers must complete the order and
                 upload payment proof within 24 hours.
               </p>
+            </CardContent>
+          </Card>
+
+          <Card className="lg:order-3">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Seller</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Link
+                href={`/sellers/${listing.seller.public_id}`}
+                className="flex items-center gap-1.5 font-semibold hover:underline"
+              >
+                {listing.seller.verified && <ShieldCheck className="h-4 w-4 text-primary" />}
+                {listing.seller.business_name}
+              </Link>
+              <div className="flex items-center gap-2 text-sm">
+                <RatingStars rating={listing.seller.trust_score} />
+                <span className="font-medium">{listing.seller.trust_score.toFixed(1)}</span>
+                <span className="text-muted-foreground">trust score</span>
+              </div>
+              <div className="text-sm text-muted-foreground">{listing.seller.district} district</div>
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <Link href={`/sellers/${listing.seller.public_id}`}>View seller profile</Link>
+              </Button>
             </CardContent>
           </Card>
         </div>

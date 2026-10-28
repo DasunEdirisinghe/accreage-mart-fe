@@ -16,7 +16,10 @@ export function PublicListingCard({ listing }: { listing: MarketplaceCard }) {
   const auction = listing.auction;
 
   return (
-    <Link href={`/marketplace/${listing.name}`} className="group block h-full">
+    <Link
+      href={isAuction && auction ? `/auctions/${auction.name}` : `/marketplace/${listing.name}`}
+      className="group block h-full"
+    >
       <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
         <div className="relative flex h-40 items-center justify-center overflow-hidden bg-muted">
           {listing.cover_image ? (

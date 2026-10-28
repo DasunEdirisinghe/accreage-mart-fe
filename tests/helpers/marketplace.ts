@@ -36,12 +36,13 @@ export function makeAuctionCard(status = "scheduled", over: Partial<MarketplaceC
     price_per_unit: null,
     quantity_available: 900,
     auction: {
+      name: "AUC-00002",
       min_bid: 180,
       start_time: "2099-01-01 10:00:00.000000",
       end_time: "2099-01-01 22:00:00.000000",
       duration_hours: 12,
       status,
-      bidding_enabled: false,
+      bidding_enabled: true,
     },
     ...over,
   });

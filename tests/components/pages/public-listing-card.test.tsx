@@ -37,12 +37,17 @@ describe("PublicListingCard: a Direct listing", () => {
 });
 
 describe("PublicListingCard: an Auction listing", () => {
-  it("shows the minimum bid, the phase and that bidding opens soon", () => {
+  it("shows the minimum bid and the phase", () => {
     render(<PublicListingCard listing={makeAuctionCard("scheduled")} />);
     expect(screen.getByText("Auction")).toBeInTheDocument();
     expect(screen.getByText(/From Rs\. 180/)).toBeInTheDocument();
     expect(screen.getByText(/Scheduled · starts/)).toBeInTheDocument();
-    expect(screen.getByText(/Bidding opens soon/)).toBeInTheDocument();
+    expect(screen.queryByText(/Bidding opens soon/)).not.toBeInTheDocument();
+  });
+
+  it("links to the real bidding page, keyed by the auction doc name", () => {
+    render(<PublicListingCard listing={makeAuctionCard("live")} />);
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/auctions/AUC-00002");
   });
 
   it("says a running auction is live, without a start time", () => {
